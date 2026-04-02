@@ -1,118 +1,135 @@
 <div align="center">
   <img src="assets/logo.jpeg" alt="AnimeGen" width="320" />
-  <p><strong>Update img · Describe idea · AI Generate story, comic and video</strong></p>
-  <p>
-    <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js" />
-    <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React" />
-    <img src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss" alt="Tailwind" />
-    <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT" />
-  </p>
+  <br />
+  <strong>Upload an image · Describe your idea · AI generates story, comics & video</strong>
+  <br /><br />
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js" /></a>
+  <a href="#quick-start"><img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React" /></a>
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss" alt="Tailwind CSS" /></a>
+  <a href="#multi-provider-support"><img src="https://img.shields.io/badge/AI-Multi--Provider-8b5cf6" alt="Multi-Provider" /></a>
+  <a href="#license"><img src="https://img.shields.io/badge/License-MIT-green" alt="MIT" /></a>
 </div>
+
+<br />
 
 <div align="center">
   <img src="assets/screenshot.png" alt="AnimeGen Screenshot" width="800" />
 </div>
 
----
+<br />
 
-## Features
+## ✨ Features
 
-- **Image Analysis** — AI understands your photo's content, subjects, colors, and mood
-- **Story Generation** — Creates a 500-800 word narrative with beginning, development, climax, and resolution
-- **Comic Generation** — Breaks the story into 4 key scenes with style-consistent panel artwork
-- **Video Generation** (optional) — Animates the comic panels
+| Feature | Description |
+|---------|-------------|
+| 🔍 **Image Analysis** | AI analyzes your photo — content, subjects, colors, mood & dynamics |
+| 📖 **Story Generation** | Creates a 500–800 word narrative (beginning → development → climax → resolution) |
+| 🎨 **Comic Generation** | Splits the story into 4 key scenes with style-consistent anime panel artwork |
+| 🎬 **Video Generation** | *(optional)* Animates comic panels into a short video clip |
 
-## Quick Start
+## 🔗 Pipeline
+
+```
+Upload Image ──▶ Vision Model ──▶ Text Model ──▶ Image Model ──▶ Video Model
+                 (analyze)        (story)        (4 panels)      (optional)
+```
+
+## 🚀 Quick Start
+
+**1. Install dependencies**
 
 ```bash
 bun install
 ```
 
-Create `.env.local`:
+**2. Configure API key**
+
+Create a `.env.local` file in the project root:
 
 ```env
 ZHIPU_API_KEY=your_zhipu_api_key
 ```
 
+**3. Start dev server**
+
 ```bash
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Then open **[http://localhost:3000](http://localhost:3000)** 🎉
 
-## First Run Tips
+## 🤖 Default Models
 
-1. Upload a `.jpg`, `.png`, or `.webp` image (under 10 MB)
-2. Enter a short creative direction (e.g. "A rainy urban coming-of-age story")
-3. Keep default models for the first test
-4. Leave video generation disabled initially — the core pipeline is image → story → comics
+| Task | Model | Provider |
+|------|-------|----------|
+| Vision | `glm-4v-flash` | Zhipu AI |
+| Text | `glm-4-flash` | Zhipu AI |
+| Image | `cogview-3-flash` | Zhipu AI |
+| Video | `cogvideox-flash` | Zhipu AI |
 
-## Default Models
+All models can be changed per-task in the **Settings** panel (⚙️ button).
 
-| Task | Model |
-|------|-------|
-| Vision | `glm-4v-flash` |
-| Text | `glm-4-flash` |
-| Image | `cogview-3-flash` |
-| Video | `cogvideox-flash` |
+## 🌐 Multi-Provider Support
 
-## Multi-Provider Support
+Configure each generation step independently — mix and match providers:
 
-Configure each task independently in the UI settings panel:
+| Provider | Models | Auth |
+|----------|--------|------|
+| **Zhipu AI** *(default)* | GLM-4V, GLM-4, CogView-3, CogVideoX | `ZHIPU_API_KEY` |
+| **OpenAI** | GPT-4o, DALL-E 3, Sora | `OPENAI_API_KEY` |
+| **Anthropic** | Claude 3.5 Sonnet, Claude 3 Haiku | `ANTHROPIC_API_KEY` |
+| **Custom** | Any OpenAI-compatible endpoint | In-app config |
 
-- **Zhipu AI** — default provider
-- **OpenAI** — GPT-4o, DALL-E 3, etc.
-- **Anthropic** — Claude models
-- **Custom** — any OpenAI-compatible endpoint
+> 💡 For custom endpoints, enter the base URL, model name, and API key directly in the UI settings.
 
-For custom endpoints, enter your own base URL, model name, and API key directly in the UI.
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 app/
-├── api/              # Server-side API routes
-│   ├── analyze/      # Vision model image analysis
-│   ├── story/       # Text model story generation
-│   ├── comics/      # Image model comic generation
-│   └── video/       # Video model (optional)
-├── page.tsx         # Main app page
-└── results/[sessionId]/  # Result display page
+├── api/                      # Server-side API routes
+│   ├── upload/               # Image upload & validation
+│   ├── analyze/              # Vision model — image analysis
+│   ├── story/                # Text model — story generation
+│   ├── comics/               # Image model — comic panel generation
+│   └── video/                # Video model — clip generation
+├── page.tsx                  # Main dashboard
+└── results/[sessionId]/      # Results showcase page
 
 components/
-├── generation/      # Pipeline UI components
-├── ui/              # Reusable UI components
-└── upload/          # Image upload component
+├── generation/               # Pipeline, StepIndicator, StoryDisplay, ComicStrip, VideoPlayer
+├── ui/                       # Button, Card, Spinner, ModelSelector
+└── upload/                   # ImageUploader (drag & drop)
 
-lib/ai/
-├── analyze.ts       # Image analysis logic
-├── client.ts        # AI provider client
-├── generateStory.ts # Story generation
-├── generateComics.ts# Comic generation
-└── generateVideo.ts # Video generation
+lib/
+├── ai/                       # AI service layer
+│   ├── client.ts             # Multi-provider HTTP client (axios)
+│   ├── analyze.ts            # Image → structured analysis
+│   ├── generateStory.ts      # Analysis + idea → narrative
+│   ├── generateComics.ts     # Story → 4 scene extraction → panel art
+│   └── generateVideo.ts      # Panel → video (async polling)
+├── models.ts                 # Provider & model definitions
+└── store/                    # React Context state management
 ```
 
-## Build & Run
+## 🏗️ Build & Deploy
 
 ```bash
+# Production build
 bun run build
+
+# Start production server
 bun run start
 ```
 
-## Troubleshooting
+## ❓ Troubleshooting
 
-**Generation fails immediately**
-→ Check your API key is valid and has quota available.
+| Problem | Solution |
+|---------|----------|
+| Generation fails immediately | Verify API key is valid and has remaining quota |
+| Upload fails | Ensure file is JPG, PNG, or WEBP and under 10 MB |
+| Styles look broken | Run `bun run build` → `bun run start` instead of dev |
+| `.env.local` changes ignored | Restart the dev server |
 
-**Upload fails**
-→ Ensure the file is JPG, PNG, or WEBP and under 10 MB.
+## 📄 License
 
-**Styles look broken**
-→ Run `bun run build` then `bun run start` (not just dev).
-
-**.env.local changes not applied**
-→ Restart the dev server.
-
-## License
-
-MIT
+[MIT](LICENSE)
