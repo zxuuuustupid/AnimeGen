@@ -10,6 +10,10 @@ interface ModelSelectorProps {
   selectedProvider: Provider;
   onModelChange: (modelId: string) => void;
   onProviderChange: (provider: Provider) => void;
+  customBaseUrl?: string;
+  customApiKey?: string;
+  onCustomBaseUrlChange?: (url: string) => void;
+  onCustomApiKeyChange?: (key: string) => void;
 }
 
 export function ModelSelector({
@@ -19,11 +23,19 @@ export function ModelSelector({
   selectedProvider,
   onModelChange,
   onProviderChange,
+  customBaseUrl = '',
+  customApiKey = '',
+  onCustomBaseUrlChange,
+  onCustomApiKeyChange,
 }: ModelSelectorProps) {
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+  const isCustomProvider = selectedProvider === 'custom';
 
-  // Get unique providers from models
+  // Get unique providers from models, plus 'custom'
   const availableProviders = [...new Set(models.map(m => m.provider))];
+  if (!availableProviders.includes('custom')) {
+    availableProviders.push('custom');
+  }
 
   // Filter models by selected provider
   const filteredModels = models.filter(m => m.provider === selectedProvider);
@@ -69,19 +81,62 @@ export function ModelSelector({
         </div>
 
         {/* Model Selector */}
-        <select
-          value={selectedModel}
-          onChange={(e) => onModelChange(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">选择模型</option>
-          {filteredModels.map(model => (
-            <option key={model.id} value={model.id}>
-              {model.name} - {model.description}
-            </option>
-          ))}
-        </select>
+        {!isCustomProvider ? (
+          <select
+            value={selectedModel}
+            onChange={(e) => onModelChange(e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">选择模型</option>
+            {filteredModels.map(model => (
+              <option key={model.id} value={model.id}>
+                {model.name} - {model.description}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={selectedModel}
+            onChange={(e) => onModelChange(e.target.value)}
+            placeholder="输入模型名称，如 glm-4-flash"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        )}
       </div>
+
+      {/* Custom Provider Inputs */}
+      {isCustomProvider && (
+        <div className="space-y-3 pl-0 mt-3">
+          {/* Custom Base URL */}
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+              API 地址 (Base URL)
+            </label>
+            <input
+              type="text"
+              value={customBaseUrl}
+              onChange={(e) => onCustomBaseUrlChange?.(e.target.value)}
+              placeholder="https://api.example.com/v1"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Custom API Key */}
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+              API 密钥
+            </label>
+            <input
+              type="password"
+              value={customApiKey}
+              onChange={(e) => onCustomApiKeyChange?.(e.target.value)}
+              placeholder="sk-..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -95,6 +150,8 @@ interface GenerationConfigEditorProps {
   textProvider: Provider;
   imageProvider: Provider;
   videoProvider: Provider;
+  customApiKey?: string;
+  customBaseUrl?: string;
   onChange: (config: Partial<{
     visionModel: string;
     textModel: string;
@@ -104,6 +161,8 @@ interface GenerationConfigEditorProps {
     textProvider: Provider;
     imageProvider: Provider;
     videoProvider: Provider;
+    customApiKey: string;
+    customBaseUrl: string;
   }>) => void;
   onClose: () => void;
 }
@@ -117,6 +176,8 @@ export function GenerationConfigEditor({
   textProvider,
   imageProvider,
   videoProvider,
+  customApiKey = '',
+  customBaseUrl = '',
   onChange,
   onClose,
 }: GenerationConfigEditorProps) {
@@ -151,6 +212,37 @@ export function GenerationConfigEditor({
             </div>
 
             <div className="space-y-6">
+              {/* Custom API Configuration - Always Visible */}
+              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">自定义 API 配置</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      API 地址 (Base URL)
+                    </label>
+                    <input
+                      type="text"
+                      value={customBaseUrl}
+                      onChange={(e) => onChange({ customBaseUrl: e.target.value })}
+                      placeholder="https://api.example.com/v1"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      API 密钥
+                    </label>
+                    <input
+                      type="password"
+                      value={customApiKey}
+                      onChange={(e) => onChange({ customApiKey: e.target.value })}
+                      placeholder="sk-..."
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
                 <ModelSelector
                   label="图像分析模型 (Vision)"
@@ -159,6 +251,10 @@ export function GenerationConfigEditor({
                   selectedProvider={visionProvider}
                   onModelChange={(model) => onChange({ visionModel: model })}
                   onProviderChange={(provider) => onChange({ visionProvider: provider })}
+                  customBaseUrl={customBaseUrl}
+                  customApiKey={customApiKey}
+                  onCustomBaseUrlChange={(url) => onChange({ customBaseUrl: url })}
+                  onCustomApiKeyChange={(key) => onChange({ customApiKey: key })}
                 />
               </div>
 
@@ -170,6 +266,10 @@ export function GenerationConfigEditor({
                   selectedProvider={textProvider}
                   onModelChange={(model) => onChange({ textModel: model })}
                   onProviderChange={(provider) => onChange({ textProvider: provider })}
+                  customBaseUrl={customBaseUrl}
+                  customApiKey={customApiKey}
+                  onCustomBaseUrlChange={(url) => onChange({ customBaseUrl: url })}
+                  onCustomApiKeyChange={(key) => onChange({ customApiKey: key })}
                 />
               </div>
 
@@ -181,6 +281,10 @@ export function GenerationConfigEditor({
                   selectedProvider={imageProvider}
                   onModelChange={(model) => onChange({ imageModel: model })}
                   onProviderChange={(provider) => onChange({ imageProvider: provider })}
+                  customBaseUrl={customBaseUrl}
+                  customApiKey={customApiKey}
+                  onCustomBaseUrlChange={(url) => onChange({ customBaseUrl: url })}
+                  onCustomApiKeyChange={(key) => onChange({ customApiKey: key })}
                 />
               </div>
 
@@ -192,6 +296,10 @@ export function GenerationConfigEditor({
                   selectedProvider={videoProvider}
                   onModelChange={(model) => onChange({ videoModel: model })}
                   onProviderChange={(provider) => onChange({ videoProvider: provider })}
+                  customBaseUrl={customBaseUrl}
+                  customApiKey={customApiKey}
+                  onCustomBaseUrlChange={(url) => onChange({ customBaseUrl: url })}
+                  onCustomApiKeyChange={(key) => onChange({ customApiKey: key })}
                 />
               </div>
             </div>

@@ -7,69 +7,67 @@ export interface AIConfig {
   apiKey?: string;
 }
 
-let zhipuClient: AxiosInstance | null = null;
-let openaiClient: AxiosInstance | null = null;
-let anthropicClient: AxiosInstance | null = null;
-
+// Always create fresh client when baseUrl or apiKey is explicitly provided
 export function getClient(config: AIConfig): AxiosInstance {
   const { provider, baseUrl, apiKey } = config;
 
+  // If custom baseUrl or apiKey is provided, always create new client
+  if (baseUrl || apiKey) {
+    const key = apiKey || '';
+    const url = baseUrl || '';
+
+    return axios.create({
+      baseURL: url,
+      timeout: 120000,
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  // Use cached clients only when using default env-based config
   switch (provider) {
     case 'zhipu': {
-      if (!zhipuClient) {
-        const key = apiKey || process.env.ZHIPU_API_KEY || '';
-        const url = baseUrl || PROVIDERS.zhipu.baseUrl;
-        zhipuClient = axios.create({
-          baseURL: url,
-          timeout: 120000,
-          headers: {
-            'Authorization': `Bearer ${key}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-      return zhipuClient;
-    }
-    case 'openai': {
-      if (!openaiClient) {
-        const key = apiKey || process.env.OPENAI_API_KEY || '';
-        const url = baseUrl || PROVIDERS.openai.baseUrl;
-        openaiClient = axios.create({
-          baseURL: url,
-          timeout: 120000,
-          headers: {
-            'Authorization': `Bearer ${key}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-      return openaiClient;
-    }
-    case 'anthropic': {
-      if (!anthropicClient) {
-        const key = apiKey || process.env.ANTHROPIC_API_KEY || '';
-        const url = baseUrl || PROVIDERS.anthropic.baseUrl;
-        anthropicClient = axios.create({
-          baseURL: url,
-          timeout: 120000,
-          headers: {
-            'x-api-key': key,
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01',
-          },
-        });
-      }
-      return anthropicClient;
-    }
-    case 'custom': {
-      // Create a new client for custom provider
-      const key = apiKey || '';
-      const url = baseUrl || '';
+      const key = process.env.ZHIPU_API_KEY || '';
       return axios.create({
-        baseURL: url,
+        baseURL: PROVIDERS.zhipu.baseUrl,
         timeout: 120000,
         headers: {
           'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    case 'openai': {
+      const key = process.env.OPENAI_API_KEY || '';
+      return axios.create({
+        baseURL: PROVIDERS.openai.baseUrl,
+        timeout: 120000,
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    case 'anthropic': {
+      const key = process.env.ANTHROPIC_API_KEY || '';
+      return axios.create({
+        baseURL: PROVIDERS.anthropic.baseUrl,
+        timeout: 120000,
+        headers: {
+          'x-api-key': key,
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+        },
+      });
+    }
+    case 'custom': {
+      return axios.create({
+        baseURL: '',
+        timeout: 120000,
+        headers: {
+          'Authorization': `Bearer `,
           'Content-Type': 'application/json',
         },
       });

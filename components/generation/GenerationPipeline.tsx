@@ -55,6 +55,8 @@ export function GenerationPipeline() {
     imageProvider: 'zhipu' as Provider,
     videoModel: 'cogvideox-flash',
     videoProvider: 'zhipu' as Provider,
+    customApiKey: '',
+    customBaseUrl: '',
   });
 
   // Video generation option
@@ -103,6 +105,8 @@ export function GenerationPipeline() {
           imagePath: state.uploadedImage,
           model: modelConfig.visionModel,
           provider: modelConfig.visionProvider,
+          baseUrl: modelConfig.customBaseUrl,
+          apiKey: modelConfig.customApiKey,
         }),
       });
       const analyzeData = await analyzeRes.json();
@@ -125,6 +129,8 @@ export function GenerationPipeline() {
           userIdea: userIdeaInput,
           model: modelConfig.textModel,
           provider: modelConfig.textProvider,
+          baseUrl: modelConfig.customBaseUrl,
+          apiKey: modelConfig.customApiKey,
         }),
       });
       const storyData = await storyRes.json();
@@ -148,6 +154,8 @@ export function GenerationPipeline() {
           panelCount: 4,
           imageModel: modelConfig.imageModel,
           provider: modelConfig.imageProvider,
+          baseUrl: modelConfig.customBaseUrl,
+          apiKey: modelConfig.customApiKey,
         }),
       });
       const comicsData = await comicsRes.json();
@@ -172,6 +180,8 @@ export function GenerationPipeline() {
               sessionId,
               videoModel: modelConfig.videoModel,
               provider: modelConfig.videoProvider,
+              baseUrl: modelConfig.customBaseUrl,
+              apiKey: modelConfig.customApiKey,
             }),
           });
           const videoData = await videoRes.json();
@@ -209,6 +219,8 @@ export function GenerationPipeline() {
           textProvider={modelConfig.textProvider}
           imageProvider={modelConfig.imageProvider}
           videoProvider={modelConfig.videoProvider}
+          customApiKey={modelConfig.customApiKey}
+          customBaseUrl={modelConfig.customBaseUrl}
           onChange={(changes) => setModelConfig(prev => ({ ...prev, ...changes }))}
           onClose={() => {}}
         />
@@ -248,14 +260,30 @@ export function GenerationPipeline() {
 
         {/* Start Button */}
         {!isGenerating && (
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              onClick={handleStartGeneration}
-              disabled={!state.uploadedImage || !userIdeaInput.trim()}
-            >
-              开始创作
-            </Button>
+          <div className="space-y-4">
+            {/* Video Generation Toggle */}
+            <div className="flex items-center gap-3 justify-center">
+              <input
+                type="checkbox"
+                id="generateVideo"
+                checked={generateVideoEnabled}
+                onChange={(e) => setGenerateVideoEnabled(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+              />
+              <label htmlFor="generateVideo" className="text-sm text-gray-700 dark:text-gray-300">
+                生成视频 (可选，需要较长时间)
+              </label>
+            </div>
+
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                onClick={handleStartGeneration}
+                disabled={!state.uploadedImage || !userIdeaInput.trim()}
+              >
+                开始创作
+              </Button>
+            </div>
           </div>
         )}
 
