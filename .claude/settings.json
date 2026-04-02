@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST https://open.bigmodel.cn/api/paas/v4/video/cogvideox -H 'Authorization: Bearer 14d71055037a499897ec3aa34fb736b4.0xmJHprIJNy4sdk0' -H 'Content-Type: application/json' -d '{\"model\":\"cogvideox-flash\",\"prompt\":\"A cat\"}')",
+      "Bash(curl -s https://open.bigmodel.cn/api/paas/v4/videos/retrieval/2026040222420113301661697d4e40 -H 'Authorization: Bearer 14d71055037a499897ec3aa34fb736b4.0xmJHprIJNy4sdk0')"
+    ]
+  }
+}

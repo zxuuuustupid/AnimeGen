@@ -446,9 +446,9 @@ export function GenerationConfigEditor({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.25)',
-            backdropFilter: 'blur(3px)',
-            WebkitBackdropFilter: 'blur(3px)',
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);

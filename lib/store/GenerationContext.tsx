@@ -20,6 +20,7 @@ const initialState: GenerationState = {
   videoUrl: null,
   progressMessage: '',
   error: null,
+  videoError: null,
 };
 
 function generationReducer(
@@ -49,6 +50,8 @@ function generationReducer(
       return { ...state, progressMessage: action.message };
     case 'SET_ERROR':
       return { ...state, error: action.error, status: 'error' };
+    case 'SET_VIDEO_ERROR':
+      return { ...state, videoError: action.error === '' ? null : action.error };
     case 'RESET':
       return initialState;
     default:
@@ -70,6 +73,7 @@ interface GenerationContextType {
   setVideoUrl: (url: string) => void;
   setProgress: (message: string) => void;
   setError: (error: string) => void;
+  setVideoError: (error: string | null) => void;
   reset: () => void;
 }
 
@@ -94,6 +98,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     setVideoUrl: (url) => dispatch({ type: 'SET_VIDEO_URL', videoUrl: url }),
     setProgress: (message) => dispatch({ type: 'SET_PROGRESS', message }),
     setError: (error) => dispatch({ type: 'SET_ERROR', error }),
+    setVideoError: (error) => dispatch({ type: 'SET_VIDEO_ERROR', error: error ?? '' }),
     reset: () => dispatch({ type: 'RESET' }),
   };
 

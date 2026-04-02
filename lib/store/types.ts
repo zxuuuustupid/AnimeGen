@@ -26,6 +26,7 @@ export interface GenerationState {
   // Progress
   progressMessage: string;
   error: string | null;
+  videoError: string | null;
 }
 
 export type GenerationAction =
@@ -40,6 +41,7 @@ export type GenerationAction =
   | { type: 'SET_VIDEO_URL'; videoUrl: string }
   | { type: 'SET_PROGRESS'; message: string }
   | { type: 'SET_ERROR'; error: string }
+  | { type: 'SET_VIDEO_ERROR'; error: string | null }
   | { type: 'RESET' };
 
 export interface SessionData {

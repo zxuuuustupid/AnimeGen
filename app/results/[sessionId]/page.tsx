@@ -167,6 +167,36 @@ export default function ResultsPage() {
               </Card>
             )}
 
+            {/* Video Error */}
+            {state.videoError && (
+              <Card>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div className="sv-section-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
+                    生成视频
+                  </h2>
+                </div>
+                <div
+                  style={{
+                    padding: '16px',
+                    borderRadius: 'var(--sv-radius-lg)',
+                    background: 'var(--sv-error-container)',
+                    border: '1px solid var(--sv-error)',
+                    color: 'var(--sv-error)',
+                    fontSize: '14px',
+                  }}
+                >
+                  {state.videoError}
+                </div>
+              </Card>
+            )}
+
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '16px' }}>
               <Button size="lg" onClick={handleStartNew}>

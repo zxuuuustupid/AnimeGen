@@ -59,6 +59,7 @@ export function GenerationPipeline() {
     setVideoUrl,
     setProgress,
     setError,
+    setVideoError,
   } = useGeneration();
 
   const [userIdeaInput, setUserIdeaInput] = useState('');
@@ -143,6 +144,7 @@ export function GenerationPipeline() {
     setUserIdea(userIdeaInput);
     setIsGenerating(true);
     setSseProgress(null);
+    setVideoError(null);
     connectSSE();
 
     try {
@@ -222,26 +224,25 @@ export function GenerationPipeline() {
         setStatus('generating_video');
         setProgress('正在生成视频...');
 
-        try {
-          const videoRes = await fetch('/api/video', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              comicPanels: comicsData.panels,
-              sessionId,
-              videoModel: modelConfig.videoModel,
-              provider: modelConfig.videoProvider,
-              baseUrl: modelConfig.videoBaseUrl,
-              apiKey: modelConfig.videoApiKey,
-            }),
-          });
-          const videoData = await videoRes.json();
+        const videoRes = await fetch('/api/video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            comicPanels: comicsData.panels,
+            sessionId,
+            videoModel: modelConfig.videoModel,
+            provider: modelConfig.videoProvider,
+            baseUrl: modelConfig.videoBaseUrl,
+            apiKey: modelConfig.videoApiKey,
+          }),
+        });
+        const videoData = await videoRes.json();
 
-          if (videoData.success && videoData.videoUrl) {
-            setVideoUrl(videoData.videoUrl);
-          }
-        } catch (videoError) {
-          console.warn('Video generation skipped:', videoError);
+        if (videoData.success && videoData.videoUrl) {
+          setVideoUrl(videoData.videoUrl);
+        } else if (videoData.error) {
+          console.error('Video generation failed:', videoData.error);
+          setVideoError(videoData.error);
         }
       }
 
@@ -372,7 +373,6 @@ export function GenerationPipeline() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
             {/* Video Generation Toggle */}
             <label
-              htmlFor="generateVideo"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -387,6 +387,7 @@ export function GenerationPipeline() {
             >
               {/* Toggle Switch */}
               <div
+                onClick={(e) => { e.stopPropagation(); setGenerateVideoEnabled(!generateVideoEnabled); }}
                 style={{
                   position: 'relative',
                   width: '40px',
@@ -414,14 +415,10 @@ export function GenerationPipeline() {
                   }}
                 />
               </div>
-              <input
-                type="checkbox"
-                id="generateVideo"
-                checked={generateVideoEnabled}
-                onChange={(e) => setGenerateVideoEnabled(e.target.checked)}
-                style={{ display: 'none' }}
-              />
-              <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sv-on-surface-variant)' }}>
+              <span
+                onClick={() => setGenerateVideoEnabled(!generateVideoEnabled)}
+                style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sv-on-surface-variant)', cursor: 'pointer' }}
+              >
                 生成视频（可选，需要较长时间）
               </span>
             </label>
