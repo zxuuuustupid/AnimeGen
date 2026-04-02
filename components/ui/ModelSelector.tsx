@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ModelOption, Provider, PROVIDERS, VISION_MODELS, TEXT_MODELS, IMAGE_MODELS, VIDEO_MODELS } from '@/lib/models';
 
 interface ModelSelectorProps {
@@ -30,38 +30,119 @@ export function ModelSelector({
 }: ModelSelectorProps) {
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   const isCustomProvider = selectedProvider === 'custom';
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get unique providers from models, plus 'custom'
   const availableProviders = [...new Set(models.map(m => m.provider))];
   if (!availableProviders.includes('custom')) {
     availableProviders.push('custom');
   }
 
-  // Filter models by selected provider
   const filteredModels = models.filter(m => m.provider === selectedProvider);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowProviderDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 14px',
+    border: '1.5px solid var(--sv-outline)',
+    borderRadius: 'var(--sv-radius-md)',
+    background: 'var(--sv-surface)',
+    color: 'var(--sv-on-surface)',
+    fontSize: '13px',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    outline: 'none',
+  };
+
+  const inputFocusHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    e.target.style.borderColor = 'var(--sv-primary)';
+    e.target.style.boxShadow = '0 0 0 3px var(--sv-primary-light)';
+  };
+
+  const inputBlurHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    e.target.style.borderColor = 'var(--sv-outline)';
+    e.target.style.boxShadow = 'none';
+  };
+
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '13px',
+          fontWeight: 600,
+          color: 'var(--sv-on-surface)',
+          letterSpacing: '0.01em',
+        }}
+      >
         {label}
       </label>
 
-      <div className="flex gap-2">
-        {/* Provider Selector */}
-        <div className="relative">
+      <div style={{ display: 'flex', gap: '8px' }}>
+        {/* Provider Chip Selector */}
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button
             type="button"
             onClick={() => setShowProviderDropdown(!showProviderDropdown)}
-            className="flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 min-w-[140px]"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              padding: '10px 14px',
+              border: '1.5px solid var(--sv-outline)',
+              borderRadius: 'var(--sv-radius-md)',
+              background: 'var(--sv-surface)',
+              color: 'var(--sv-on-surface)',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              minWidth: '140px',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--sv-primary)';
+            }}
+            onMouseLeave={(e) => {
+              if (!showProviderDropdown) e.currentTarget.style.borderColor = 'var(--sv-outline)';
+            }}
           >
-            <span className="text-sm">{PROVIDERS[selectedProvider]?.name || '选择供应商'}</span>
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <span>{PROVIDERS[selectedProvider]?.name || '选择供应商'}</span>
+            <svg
+              width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="var(--sv-on-surface-variant)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{
+                transform: showProviderDropdown ? 'rotate(180deg)' : 'rotate(0)',
+                transition: 'transform 0.2s ease',
+              }}
+            >
+              <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
 
           {showProviderDropdown && (
-            <div className="absolute z-10 mt-1 w-48 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
+            <div
+              className="sv-animate-scale-in"
+              style={{
+                position: 'absolute',
+                zIndex: 20,
+                marginTop: '4px',
+                width: '200px',
+                background: 'var(--sv-surface)',
+                border: '1px solid var(--sv-outline-variant)',
+                borderRadius: 'var(--sv-radius-md)',
+                boxShadow: 'var(--sv-shadow-xl)',
+                overflow: 'hidden',
+              }}
+            >
               {availableProviders.map(provider => (
                 <button
                   key={provider}
@@ -69,10 +150,37 @@ export function ModelSelector({
                     onProviderChange(provider);
                     setShowProviderDropdown(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${
-                    selectedProvider === provider ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : ''
-                  }`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '10px 14px',
+                    fontSize: '13px',
+                    fontWeight: selectedProvider === provider ? 600 : 400,
+                    color: selectedProvider === provider ? 'var(--sv-primary)' : 'var(--sv-on-surface)',
+                    background: selectedProvider === provider ? 'var(--sv-primary-light)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedProvider !== provider) {
+                      e.currentTarget.style.background = 'var(--sv-surface-container)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedProvider !== provider) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
                 >
+                  {selectedProvider === provider && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sv-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
                   {PROVIDERS[provider]?.name}
                 </button>
               ))}
@@ -85,7 +193,18 @@ export function ModelSelector({
           <select
             value={selectedModel}
             onChange={(e) => onModelChange(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              ...inputStyle,
+              flex: 1,
+              cursor: 'pointer',
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235F6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 12px center',
+              paddingRight: '36px',
+            }}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
           >
             <option value="">选择模型</option>
             {filteredModels.map(model => (
@@ -100,15 +219,25 @@ export function ModelSelector({
             value={selectedModel}
             onChange={(e) => onModelChange(e.target.value)}
             placeholder="输入模型名称，如 glm-4-flash"
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ ...inputStyle, flex: 1 }}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
           />
         )}
       </div>
 
-      {/* Custom Provider Inputs - always shown for this selector */}
-      <div className="grid grid-cols-2 gap-3 pl-0">
+      {/* Custom Provider Inputs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <label
+            style={{
+              display: 'block',
+              fontSize: '11px',
+              fontWeight: 500,
+              color: 'var(--sv-on-surface-variant)',
+              marginBottom: '4px',
+            }}
+          >
             API 地址
           </label>
           <input
@@ -116,11 +245,21 @@ export function ModelSelector({
             value={customBaseUrl}
             onChange={(e) => onCustomBaseUrlChange?.(e.target.value)}
             placeholder="https://api.example.com/v1"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={inputStyle}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <label
+            style={{
+              display: 'block',
+              fontSize: '11px',
+              fontWeight: 500,
+              color: 'var(--sv-on-surface-variant)',
+              marginBottom: '4px',
+            }}
+          >
             API 密钥
           </label>
           <input
@@ -128,7 +267,9 @@ export function ModelSelector({
             value={customApiKey}
             onChange={(e) => onCustomApiKeyChange?.(e.target.value)}
             placeholder="sk-..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={inputStyle}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
           />
         </div>
       </div>
@@ -145,7 +286,6 @@ interface GenerationConfigEditorProps {
   textProvider: Provider;
   imageProvider: Provider;
   videoProvider: Provider;
-  // Per-model custom config
   visionBaseUrl?: string;
   visionApiKey?: string;
   textBaseUrl?: string;
@@ -197,104 +337,265 @@ export function GenerationConfigEditor({
 }: GenerationConfigEditorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const sectionLabels = [
+    { icon: '👁', label: '图像分析模型 (Vision)', color: '#4285F4' },
+    { icon: '✍️', label: '文本生成模型 (Text)', color: '#0F9D58' },
+    { icon: '🎨', label: '图像生成模型 (Image)', color: '#F4B400' },
+    { icon: '🎬', label: '视频生成模型 (Video)', color: '#DB4437' },
+  ];
+
+  const sections = [
+    {
+      ...sectionLabels[0],
+      models: VISION_MODELS,
+      selectedModel: visionModel,
+      selectedProvider: visionProvider,
+      onModelChange: (model: string) => onChange({ visionModel: model }),
+      onProviderChange: (provider: Provider) => onChange({ visionProvider: provider }),
+      customBaseUrl: visionBaseUrl,
+      customApiKey: visionApiKey,
+      onCustomBaseUrlChange: (url: string) => onChange({ visionBaseUrl: url }),
+      onCustomApiKeyChange: (key: string) => onChange({ visionApiKey: key }),
+    },
+    {
+      ...sectionLabels[1],
+      models: TEXT_MODELS,
+      selectedModel: textModel,
+      selectedProvider: textProvider,
+      onModelChange: (model: string) => onChange({ textModel: model }),
+      onProviderChange: (provider: Provider) => onChange({ textProvider: provider }),
+      customBaseUrl: textBaseUrl,
+      customApiKey: textApiKey,
+      onCustomBaseUrlChange: (url: string) => onChange({ textBaseUrl: url }),
+      onCustomApiKeyChange: (key: string) => onChange({ textApiKey: key }),
+    },
+    {
+      ...sectionLabels[2],
+      models: IMAGE_MODELS,
+      selectedModel: imageModel,
+      selectedProvider: imageProvider,
+      onModelChange: (model: string) => onChange({ imageModel: model }),
+      onProviderChange: (provider: Provider) => onChange({ imageProvider: provider }),
+      customBaseUrl: imageBaseUrl,
+      customApiKey: imageApiKey,
+      onCustomBaseUrlChange: (url: string) => onChange({ imageBaseUrl: url }),
+      onCustomApiKeyChange: (key: string) => onChange({ imageApiKey: key }),
+    },
+    {
+      ...sectionLabels[3],
+      models: VIDEO_MODELS,
+      selectedModel: videoModel,
+      selectedProvider: videoProvider,
+      onModelChange: (model: string) => onChange({ videoModel: model }),
+      onProviderChange: (provider: Provider) => onChange({ videoProvider: provider }),
+      customBaseUrl: videoBaseUrl,
+      customApiKey: videoApiKey,
+      onCustomBaseUrlChange: (url: string) => onChange({ videoBaseUrl: url }),
+      onCustomApiKeyChange: (key: string) => onChange({ videoApiKey: key }),
+    },
+  ];
+
   return (
-    <div className="relative">
+    <div style={{ position: 'relative' }}>
+      {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 16px',
+          fontSize: '13px',
+          fontWeight: 500,
+          border: '1.5px solid var(--sv-outline)',
+          borderRadius: 'var(--sv-radius-full)',
+          background: 'var(--sv-surface)',
+          color: 'var(--sv-on-surface)',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--sv-primary)';
+          e.currentTarget.style.background = 'var(--sv-primary-light)';
+          e.currentTarget.style.color = 'var(--sv-primary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--sv-outline)';
+          e.currentTarget.style.background = 'var(--sv-surface)';
+          e.currentTarget.style.color = 'var(--sv-on-surface)';
+        }}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
+          <circle cx="12" cy="12" r="3" />
         </svg>
         模型设置
       </button>
 
+      {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">AI 模型配置</h2>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsOpen(false);
+          }}
+        >
+          <div
+            className="sv-animate-scale-in"
+            style={{
+              background: 'var(--sv-surface)',
+              borderRadius: 'var(--sv-radius-xl)',
+              boxShadow: 'var(--sv-shadow-2xl)',
+              width: '100%',
+              maxWidth: '720px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              border: '1px solid var(--sv-outline-variant)',
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '24px 28px 20px',
+                borderBottom: '1px solid var(--sv-outline-variant)',
+              }}
+            >
+              <div>
+                <h2
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: 'var(--sv-on-surface)',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  AI 模型配置
+                </h2>
+                <p style={{ fontSize: '13px', color: 'var(--sv-on-surface-variant)', marginTop: '2px' }}>
+                  为每个生成步骤选择 AI 模型和供应商
+                </p>
+              </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'var(--sv-surface-container)',
+                  color: 'var(--sv-on-surface-variant)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--sv-surface-container-high)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--sv-surface-container)';
+                }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Vision Model */}
-              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <ModelSelector
-                  label="图像分析模型 (Vision)"
-                  models={VISION_MODELS}
-                  selectedModel={visionModel}
-                  selectedProvider={visionProvider}
-                  onModelChange={(model) => onChange({ visionModel: model })}
-                  onProviderChange={(provider) => onChange({ visionProvider: provider })}
-                  customBaseUrl={visionBaseUrl}
-                  customApiKey={visionApiKey}
-                  onCustomBaseUrlChange={(url) => onChange({ visionBaseUrl: url })}
-                  onCustomApiKeyChange={(key) => onChange({ visionApiKey: key })}
-                />
-              </div>
-
-              {/* Text Model */}
-              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <ModelSelector
-                  label="文本生成模型 (Text)"
-                  models={TEXT_MODELS}
-                  selectedModel={textModel}
-                  selectedProvider={textProvider}
-                  onModelChange={(model) => onChange({ textModel: model })}
-                  onProviderChange={(provider) => onChange({ textProvider: provider })}
-                  customBaseUrl={textBaseUrl}
-                  customApiKey={textApiKey}
-                  onCustomBaseUrlChange={(url) => onChange({ textBaseUrl: url })}
-                  onCustomApiKeyChange={(key) => onChange({ textApiKey: key })}
-                />
-              </div>
-
-              {/* Image Model */}
-              <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <ModelSelector
-                  label="图像生成模型 (Image)"
-                  models={IMAGE_MODELS}
-                  selectedModel={imageModel}
-                  selectedProvider={imageProvider}
-                  onModelChange={(model) => onChange({ imageModel: model })}
-                  onProviderChange={(provider) => onChange({ imageProvider: provider })}
-                  customBaseUrl={imageBaseUrl}
-                  customApiKey={imageApiKey}
-                  onCustomBaseUrlChange={(url) => onChange({ imageBaseUrl: url })}
-                  onCustomApiKeyChange={(key) => onChange({ imageApiKey: key })}
-                />
-              </div>
-
-              {/* Video Model */}
-              <div>
-                <ModelSelector
-                  label="视频生成模型 (Video)"
-                  models={VIDEO_MODELS}
-                  selectedModel={videoModel}
-                  selectedProvider={videoProvider}
-                  onModelChange={(model) => onChange({ videoModel: model })}
-                  onProviderChange={(provider) => onChange({ videoProvider: provider })}
-                  customBaseUrl={videoBaseUrl}
-                  customApiKey={videoApiKey}
-                  onCustomBaseUrlChange={(url) => onChange({ videoBaseUrl: url })}
-                  onCustomApiKeyChange={(key) => onChange({ videoApiKey: key })}
-                />
+            {/* Content */}
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {sections.map((section, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '20px',
+                      borderRadius: 'var(--sv-radius-lg)',
+                      background: 'var(--sv-surface-dim)',
+                      border: '1px solid var(--sv-outline-variant)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          background: `${section.color}15`,
+                        }}
+                      >
+                        {section.icon}
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sv-on-surface)' }}>
+                        {section.label}
+                      </span>
+                    </div>
+                    <ModelSelector
+                      label=""
+                      models={section.models}
+                      selectedModel={section.selectedModel}
+                      selectedProvider={section.selectedProvider}
+                      onModelChange={section.onModelChange}
+                      onProviderChange={section.onProviderChange}
+                      customBaseUrl={section.customBaseUrl}
+                      customApiKey={section.customApiKey}
+                      onCustomBaseUrlChange={section.onCustomBaseUrlChange}
+                      onCustomApiKeyChange={section.onCustomApiKeyChange}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {/* Footer */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                padding: '16px 28px 24px',
+                borderTop: '1px solid var(--sv-outline-variant)',
+              }}
+            >
               <button
                 onClick={() => setIsOpen(false)}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                style={{
+                  padding: '10px 28px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  borderRadius: 'var(--sv-radius-full)',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid))',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--sv-shadow-md)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--sv-shadow-xl)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--sv-shadow-md)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
                 保存并关闭
               </button>

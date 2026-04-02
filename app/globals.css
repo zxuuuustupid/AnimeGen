@@ -1,26 +1,297 @@
 @import "tailwindcss";
 
+/* ============================================
+   StoryVision — Google Material 3 Design System
+   ============================================ */
+
+/* --- Color Tokens (Light Mode) --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --sv-primary: #4285F4;
+  --sv-primary-hover: #3367D6;
+  --sv-primary-light: #E8F0FE;
+  --sv-primary-container: #D2E3FC;
+  --sv-on-primary: #ffffff;
+  --sv-on-primary-container: #1A73E8;
+
+  --sv-secondary: #5F6368;
+  --sv-secondary-container: #E8EAED;
+
+  --sv-surface: #ffffff;
+  --sv-surface-dim: #F8F9FA;
+  --sv-surface-container: #F1F3F4;
+  --sv-surface-container-high: #E8EAED;
+  --sv-surface-variant: #E3E3E3;
+
+  --sv-on-surface: #202124;
+  --sv-on-surface-variant: #5F6368;
+  --sv-outline: #DADCE0;
+  --sv-outline-variant: #E8EAED;
+
+  --sv-error: #D93025;
+  --sv-error-container: #FCE8E6;
+  --sv-on-error: #ffffff;
+
+  --sv-success: #1E8E3E;
+  --sv-success-container: #E6F4EA;
+
+  --sv-background: #ffffff;
+  --sv-foreground: #202124;
+
+  --sv-gradient-start: #4285F4;
+  --sv-gradient-mid: #7B61FF;
+  --sv-gradient-end: #EA4335;
+
+  --sv-shadow-color: 0 0% 0%;
+  --sv-shadow-sm: 0 1px 2px hsl(var(--sv-shadow-color) / 0.05);
+  --sv-shadow-md: 0 1px 3px hsl(var(--sv-shadow-color) / 0.1), 0 1px 2px hsl(var(--sv-shadow-color) / 0.06);
+  --sv-shadow-lg: 0 4px 6px hsl(var(--sv-shadow-color) / 0.07), 0 2px 4px hsl(var(--sv-shadow-color) / 0.06);
+  --sv-shadow-xl: 0 10px 15px hsl(var(--sv-shadow-color) / 0.1), 0 4px 6px hsl(var(--sv-shadow-color) / 0.05);
+  --sv-shadow-2xl: 0 20px 25px hsl(var(--sv-shadow-color) / 0.1), 0 8px 10px hsl(var(--sv-shadow-color) / 0.04);
+
+  --sv-radius-sm: 8px;
+  --sv-radius-md: 12px;
+  --sv-radius-lg: 16px;
+  --sv-radius-xl: 24px;
+  --sv-radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* --- Color Tokens (Dark Mode) --- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --sv-primary: #8AB4F8;
+    --sv-primary-hover: #AECBFA;
+    --sv-primary-light: #1A237E;
+    --sv-primary-container: #1E3A5F;
+    --sv-on-primary: #062E6F;
+    --sv-on-primary-container: #D2E3FC;
+
+    --sv-secondary: #9AA0A6;
+    --sv-secondary-container: #3C4043;
+
+    --sv-surface: #1E1E1E;
+    --sv-surface-dim: #131314;
+    --sv-surface-container: #252526;
+    --sv-surface-container-high: #2D2E30;
+    --sv-surface-variant: #3C4043;
+
+    --sv-on-surface: #E8EAED;
+    --sv-on-surface-variant: #9AA0A6;
+    --sv-outline: #5F6368;
+    --sv-outline-variant: #3C4043;
+
+    --sv-error: #F28B82;
+    --sv-error-container: #2D1214;
+    --sv-on-error: #601410;
+
+    --sv-success: #81C995;
+    --sv-success-container: #0D3921;
+
+    --sv-background: #131314;
+    --sv-foreground: #E8EAED;
+
+    --sv-gradient-start: #8AB4F8;
+    --sv-gradient-mid: #A78BFA;
+    --sv-gradient-end: #F28B82;
+
+    --sv-shadow-color: 0 0% 0%;
+    --sv-shadow-sm: 0 1px 3px hsl(var(--sv-shadow-color) / 0.3);
+    --sv-shadow-md: 0 2px 6px hsl(var(--sv-shadow-color) / 0.35);
+    --sv-shadow-lg: 0 4px 12px hsl(var(--sv-shadow-color) / 0.4);
+    --sv-shadow-xl: 0 8px 24px hsl(var(--sv-shadow-color) / 0.45);
+    --sv-shadow-2xl: 0 16px 48px hsl(var(--sv-shadow-color) / 0.5);
   }
 }
 
+/* --- Tailwind Theme Integration --- */
+@theme inline {
+  --color-background: var(--sv-background);
+  --color-foreground: var(--sv-foreground);
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* --- Global Styles --- */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--sv-background);
+  color: var(--sv-foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sv-outline);
+  border-radius: var(--sv-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sv-on-surface-variant);
+}
+
+/* --- Keyframe Animations --- */
+@keyframes sv-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sv-fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sv-slide-up {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes sv-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sv-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes sv-pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+@keyframes sv-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sv-gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes sv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes sv-border-dance {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes sv-bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sv-ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes sv-dot-pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* --- Utility Classes --- */
+.sv-animate-fade-in {
+  animation: sv-fade-in 0.5s ease-out forwards;
+}
+
+.sv-animate-fade-in-up {
+  animation: sv-fade-in-up 0.6s ease-out forwards;
+}
+
+.sv-animate-slide-up {
+  animation: sv-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sv-animate-scale-in {
+  animation: sv-scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sv-animate-bounce-in {
+  animation: sv-bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* --- Glass Surface --- */
+.sv-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .sv-glass {
+    background: rgba(30, 30, 30, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* --- Gradient Text --- */
+.sv-gradient-text {
+  background: linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid), var(--sv-gradient-end));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: sv-gradient-flow 6s ease-in-out infinite;
+}
+
+/* --- Gradient Background Mesh --- */
+.sv-gradient-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.sv-gradient-bg::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(66, 133, 244, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(234, 67, 53, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(123, 97, 255, 0.04) 0%, transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sv-gradient-bg::before {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(138, 180, 248, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(242, 139, 130, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.03) 0%, transparent 50%);
+  }
+}
+
+/* --- Focus Ring Utility --- */
+.sv-focus-ring:focus-visible {
+  outline: 2px solid var(--sv-primary);
+  outline-offset: 2px;
+}
+
+/* --- Selection --- */
+::selection {
+  background: var(--sv-primary-container);
+  color: var(--sv-on-primary-container);
 }

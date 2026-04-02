@@ -15,81 +15,200 @@ export default function ResultsPage() {
   const sessionId = params.sessionId as string;
   const { state, reset } = useGeneration();
 
-  const handleBackToHome = () => {
-    reset();
-    router.push('/');
-  };
-
   const handleStartNew = () => {
     reset();
     router.push('/');
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-black">
+    <div className="min-h-screen flex flex-col sv-gradient-bg" style={{ background: 'var(--sv-background)' }}>
       {/* Header */}
-      <header className="py-6 px-8 border-b border-black/[.08] dark:border-white/[.145]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">StoryVision</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">创作成果</p>
+      <header
+        className="sv-glass sticky top-0 z-40"
+        style={{ borderBottom: '1px solid var(--sv-outline-variant)' }}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex items-center justify-center w-9 h-9 rounded-xl"
+              style={{
+                background: 'linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid))',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <div>
+              <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--sv-on-surface)' }}>
+                StoryVision
+              </h1>
+              <p style={{ fontSize: '12px', color: 'var(--sv-on-surface-variant)' }}>创作成果</p>
+            </div>
           </div>
-          <Button onClick={handleBackToHome}>返回首页</Button>
+          <Button variant="secondary" onClick={handleStartNew}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16" />
+              <path d="M8 16H3v5" />
+            </svg>
+            开始新创作
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 py-12 px-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Original Image */}
-          {state.uploadedImage && (
-            <Card>
-              <h2 className="text-xl font-semibold mb-4">原始图片</h2>
-              <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-                <Image
-                  src={state.uploadedImage}
-                  alt="Original"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            </Card>
-          )}
+      <main className="flex-1 relative z-10 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Success Banner */}
+          <div
+            className="sv-animate-fade-in"
+            style={{
+              textAlign: 'center',
+              marginBottom: '40px',
+            }}
+          >
+            <div
+              className="sv-animate-bounce-in"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'var(--sv-success-container)',
+                marginBottom: '16px',
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--sv-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <h2
+              className="sv-gradient-text"
+              style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}
+            >
+              创作完成！
+            </h2>
+            <p style={{ fontSize: '15px', color: 'var(--sv-on-surface-variant)' }}>
+              以下是 AI 为你生成的全部内容
+            </p>
+          </div>
 
-          {/* Generated Story */}
-          {state.generatedStory && (
-            <Card>
-              <StoryDisplay story={state.generatedStory} />
-            </Card>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Original Image */}
+            {state.uploadedImage && (
+              <Card>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '8px',
+                      background: 'var(--sv-primary-container)',
+                      fontSize: '14px',
+                    }}
+                  >
+                    🖼
+                  </div>
+                  <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+                    原始图片
+                  </h2>
+                </div>
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '280px',
+                    background: 'var(--sv-surface-container)',
+                    borderRadius: 'var(--sv-radius-lg)',
+                    overflow: 'hidden',
+                    border: '1px solid var(--sv-outline-variant)',
+                  }}
+                >
+                  <Image
+                    src={state.uploadedImage}
+                    alt="Original"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </Card>
+            )}
 
-          {/* Generated Comics */}
-          {state.comicPanels && state.comicPanels.length > 0 && (
-            <Card>
-              <ComicStrip panels={state.comicPanels} />
-            </Card>
-          )}
+            {/* Generated Story */}
+            {state.generatedStory && (
+              <Card>
+                <StoryDisplay story={state.generatedStory} />
+              </Card>
+            )}
 
-          {/* Generated Video */}
-          {state.videoUrl && (
-            <Card>
-              <VideoPlayer videoUrl={state.videoUrl} />
-            </Card>
-          )}
+            {/* Generated Comics */}
+            {state.comicPanels && state.comicPanels.length > 0 && (
+              <Card>
+                <ComicStrip panels={state.comicPanels} />
+              </Card>
+            )}
 
-          {/* Actions */}
-          <div className="flex justify-center gap-4">
-            <Button variant="secondary" onClick={handleStartNew}>
-              开始新的创作
-            </Button>
+            {/* Generated Video */}
+            {state.videoUrl && (
+              <Card>
+                <VideoPlayer videoUrl={state.videoUrl} />
+              </Card>
+            )}
+
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '16px' }}>
+              <Button size="lg" onClick={handleStartNew}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                开始新的创作
+              </Button>
+            </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-6 px-8 border-t border-black/[.08] dark:border-white/[.145]">
-        <div className="max-w-6xl mx-auto text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>由 智谱AI GLM-4.6V、GLM-4.7、CogView-3 和 CogVideoX 驱动</p>
+      <footer className="relative z-10 py-8 px-6">
+        <div
+          className="max-w-6xl mx-auto pt-6"
+          style={{ borderTop: '1px solid var(--sv-outline-variant)' }}
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)' }}>
+              © 2026 StoryVision · AI 创意工作室
+            </p>
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              {['GLM-4V', 'GLM-4', 'CogView-3', 'CogVideoX'].map((model) => (
+                <span
+                  key={model}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    background: 'var(--sv-surface-container)',
+                    color: 'var(--sv-on-surface-variant)',
+                    border: '1px solid var(--sv-outline-variant)',
+                  }}
+                >
+                  {model}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </footer>
     </div>

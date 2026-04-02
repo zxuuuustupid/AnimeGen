@@ -1,21 +1,17 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { GenerationProvider } from '@/lib/store/GenerationContext';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'StoryVision - AI 故事生成器',
-  description: '上传图片，AI 帮你创作故事、漫画和短视频',
+  title: 'StoryVision — AI 创意故事生成器',
+  description: '上传一张图片，描述你的想法，AI 为你创作故事、生成漫画、制作短视频。由智谱 AI 驱动。',
 };
 
 export default function RootLayout({
@@ -25,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <GenerationProvider>
           {children}
         </GenerationProvider>

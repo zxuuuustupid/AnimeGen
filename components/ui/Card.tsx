@@ -8,7 +8,23 @@ interface CardProps {
 export function Card({ children, className = '' }: CardProps) {
   return (
     <div
-      className={`rounded-2xl border border-solid border-black/[.08] bg-white p-6 shadow-sm dark:border-white/[.145] dark:bg-white/[.025] ${className}`}
+      className={`sv-animate-fade-in ${className}`}
+      style={{
+        background: 'var(--sv-surface)',
+        border: '1px solid var(--sv-outline-variant)',
+        borderRadius: 'var(--sv-radius-xl)',
+        padding: '28px',
+        boxShadow: 'var(--sv-shadow-sm)',
+        transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = 'var(--sv-shadow-lg)';
+        e.currentTarget.style.borderColor = 'var(--sv-outline)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = 'var(--sv-shadow-sm)';
+        e.currentTarget.style.borderColor = 'var(--sv-outline-variant)';
+      }}
     >
       {children}
     </div>

@@ -1,14 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGeneration } from '@/lib/store/GenerationContext';
 import { generateSessionId } from '@/lib/utils/session';
 import { ImageUploader } from '@/components/upload/ImageUploader';
 import { StepIndicator } from '@/components/generation/StepIndicator';
-import { StoryDisplay } from '@/components/generation/StoryDisplay';
-import { ComicStrip } from '@/components/generation/ComicStrip';
-import { VideoPlayer } from '@/components/generation/VideoPlayer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
@@ -29,7 +26,6 @@ export function GenerationPipeline() {
   const router = useRouter();
   const {
     state,
-    setSessionId,
     setImage,
     setUserIdea,
     setStatus,
@@ -45,7 +41,6 @@ export function GenerationPipeline() {
   const [isGenerating, setIsGenerating] = useState(false);
   const sessionIdRef = useRef<string | null>(null);
 
-  // Model configuration state
   const [modelConfig, setModelConfig] = useState({
     visionModel: 'glm-4v-flash',
     visionProvider: 'zhipu' as Provider,
@@ -55,7 +50,6 @@ export function GenerationPipeline() {
     imageProvider: 'zhipu' as Provider,
     videoModel: 'cogvideox-flash',
     videoProvider: 'zhipu' as Provider,
-    // Per-model custom config
     visionBaseUrl: '',
     visionApiKey: '',
     textBaseUrl: '',
@@ -66,14 +60,11 @@ export function GenerationPipeline() {
     videoApiKey: '',
   });
 
-  // Video generation option
   const [generateVideoEnabled, setGenerateVideoEnabled] = useState(false);
 
-  // Initialize session ID only once
   if (!sessionIdRef.current) {
     sessionIdRef.current = state.sessionId || generateSessionId();
   }
-
   const sessionId = sessionIdRef.current;
 
   const getCurrentStepStatus = (stepNum: number): StepStatus => {
@@ -82,7 +73,7 @@ export function GenerationPipeline() {
     return 'pending';
   };
 
-  const stepsWithStatus: { step: number; label: string; status: StepStatus }[] = STEPS.map((s) => ({
+  const stepsWithStatus = STEPS.map((s) => ({
     ...s,
     status: getCurrentStepStatus(s.step),
   }));
@@ -101,7 +92,6 @@ export function GenerationPipeline() {
     setIsGenerating(true);
 
     try {
-      // Step 1: Analyze image
       setStatus('analyzing');
       setProgress('正在分析图片...');
 
@@ -124,7 +114,6 @@ export function GenerationPipeline() {
 
       setImageAnalysis(analyzeData.analysis);
 
-      // Step 2: Generate story
       setStatus('generating_story');
       setProgress('正在创作故事...');
 
@@ -148,7 +137,6 @@ export function GenerationPipeline() {
 
       setGeneratedStory(storyData.story);
 
-      // Step 3: Generate comics
       setStatus('generating_comics');
       setProgress('正在生成漫画...');
 
@@ -174,7 +162,6 @@ export function GenerationPipeline() {
 
       setComicPanels(comicsData.panels);
 
-      // Step 4: Generate video (only if enabled)
       if (generateVideoEnabled) {
         setStatus('generating_video');
         setProgress('正在生成视频...');
@@ -202,7 +189,6 @@ export function GenerationPipeline() {
         }
       }
 
-      // Complete!
       setStatus('completed');
       setProgress('完成！');
       router.push(`/results/${sessionId}`);
@@ -215,9 +201,9 @@ export function GenerationPipeline() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div style={{ width: '100%', maxWidth: '896px', margin: '0 auto' }}>
       {/* Model Settings */}
-      <div className="flex justify-end mb-4">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
         <GenerationConfigEditor
           visionModel={modelConfig.visionModel}
           textModel={modelConfig.textModel}
@@ -242,10 +228,28 @@ export function GenerationPipeline() {
 
       <StepIndicator steps={stepsWithStatus} />
 
-      <div className="mt-8 space-y-6">
+      <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Step 1: Upload Image */}
         <Card>
-          <h2 className="text-xl font-semibold mb-4">上传图片</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'var(--sv-primary-container)',
+                fontSize: '13px',
+              }}
+            >
+              📷
+            </div>
+            <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+              上传图片
+            </h2>
+          </div>
           <ImageUploader
             onImageUpload={handleImageUpload}
             sessionId={sessionId}
@@ -255,64 +259,203 @@ export function GenerationPipeline() {
 
         {/* Step 2: Enter Idea */}
         <Card>
-          <h2 className="text-xl font-semibold mb-4">你的想法</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'var(--sv-primary-container)',
+                fontSize: '13px',
+              }}
+            >
+              ✨
+            </div>
+            <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+              你的想法
+            </h2>
+          </div>
           <textarea
             value={userIdeaInput}
             onChange={(e) => setUserIdeaInput(e.target.value)}
-            placeholder="描述你的故事想法..."
-            className="w-full h-32 p-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="描述你想要的故事风格、情节走向、氛围感受..."
+            style={{
+              width: '100%',
+              height: '128px',
+              padding: '14px 16px',
+              borderRadius: 'var(--sv-radius-lg)',
+              border: '1.5px solid var(--sv-outline)',
+              background: 'var(--sv-surface-dim)',
+              color: 'var(--sv-on-surface)',
+              fontSize: '14px',
+              lineHeight: 1.6,
+              resize: 'none',
+              outline: 'none',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
+              fontFamily: 'inherit',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--sv-primary)';
+              e.target.style.boxShadow = '0 0 0 3px var(--sv-primary-light)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--sv-outline)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
         </Card>
 
         {/* Progress Display */}
         {isGenerating && (
-          <Card className="text-center py-12">
-            <Spinner size="lg" className="mx-auto mb-4" />
-            <p className="text-lg font-medium">{state.progressMessage}</p>
+          <Card>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '32px 0',
+                gap: '20px',
+              }}
+            >
+              <Spinner size="lg" />
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)' }}>
+                  {state.progressMessage}
+                </p>
+                <p style={{ fontSize: '13px', color: 'var(--sv-on-surface-variant)', marginTop: '4px' }}>
+                  请耐心等待，AI 正在全力创作中
+                </p>
+              </div>
+            </div>
           </Card>
         )}
 
         {/* Start Button */}
         {!isGenerating && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
             {/* Video Generation Toggle */}
-            <div className="flex items-center gap-3 justify-center">
+            <label
+              htmlFor="generateVideo"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                cursor: 'pointer',
+                padding: '10px 20px',
+                borderRadius: 'var(--sv-radius-full)',
+                background: 'var(--sv-surface-container)',
+                border: '1px solid var(--sv-outline-variant)',
+                transition: 'all 0.2s',
+              }}
+            >
+              {/* Toggle Switch */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '44px',
+                  height: '24px',
+                  borderRadius: '12px',
+                  background: generateVideoEnabled
+                    ? 'linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid))'
+                    : 'var(--sv-surface-container-high)',
+                  transition: 'background 0.3s ease',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    left: generateVideoEnabled ? '22px' : '2px',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: '#ffffff',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    transition: 'left 0.3s cubic-bezier(0.2, 0, 0, 1)',
+                  }}
+                />
+              </div>
               <input
                 type="checkbox"
                 id="generateVideo"
                 checked={generateVideoEnabled}
                 onChange={(e) => setGenerateVideoEnabled(e.target.checked)}
-                className="w-5 h-5 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                style={{ display: 'none' }}
               />
-              <label htmlFor="generateVideo" className="text-sm text-gray-700 dark:text-gray-300">
+              <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sv-on-surface)' }}>
                 生成视频 (可选，需要较长时间)
-              </label>
-            </div>
+              </span>
+            </label>
 
-            <div className="flex justify-center">
-              <Button
-                size="lg"
-                onClick={handleStartGeneration}
-                disabled={!state.uploadedImage || !userIdeaInput.trim()}
-              >
-                开始创作
-              </Button>
-            </div>
+            <Button
+              size="lg"
+              onClick={handleStartGeneration}
+              disabled={!state.uploadedImage || !userIdeaInput.trim()}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              开始创作
+            </Button>
           </div>
         )}
 
         {/* Error Display */}
         {state.error && (
-          <Card className="border-red-500 bg-red-50 dark:bg-red-900/20">
-            <p className="text-red-600 dark:text-red-400">{state.error}</p>
-            <Button
-              variant="secondary"
-              className="mt-4"
-              onClick={() => setError('')}
-            >
-              重试
-            </Button>
-          </Card>
+          <div
+            className="sv-animate-fade-in"
+            style={{
+              padding: '20px 24px',
+              borderRadius: 'var(--sv-radius-xl)',
+              background: 'var(--sv-error-container)',
+              border: '1px solid var(--sv-error)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sv-error)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            <div style={{ flex: 1 }}>
+              <p style={{ color: 'var(--sv-error)', fontWeight: 600, fontSize: '14px' }}>
+                {state.error}
+              </p>
+              <button
+                onClick={() => setError('')}
+                style={{
+                  marginTop: '10px',
+                  padding: '6px 16px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  borderRadius: 'var(--sv-radius-full)',
+                  border: '1px solid var(--sv-error)',
+                  background: 'transparent',
+                  color: 'var(--sv-error)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--sv-error)';
+                  e.currentTarget.style.color = 'var(--sv-on-error)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--sv-error)';
+                }}
+              >
+                重试
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
