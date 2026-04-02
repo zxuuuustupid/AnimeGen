@@ -55,8 +55,15 @@ export function GenerationPipeline() {
     imageProvider: 'zhipu' as Provider,
     videoModel: 'cogvideox-flash',
     videoProvider: 'zhipu' as Provider,
-    customApiKey: '',
-    customBaseUrl: '',
+    // Per-model custom config
+    visionBaseUrl: '',
+    visionApiKey: '',
+    textBaseUrl: '',
+    textApiKey: '',
+    imageBaseUrl: '',
+    imageApiKey: '',
+    videoBaseUrl: '',
+    videoApiKey: '',
   });
 
   // Video generation option
@@ -105,8 +112,8 @@ export function GenerationPipeline() {
           imagePath: state.uploadedImage,
           model: modelConfig.visionModel,
           provider: modelConfig.visionProvider,
-          baseUrl: modelConfig.customBaseUrl,
-          apiKey: modelConfig.customApiKey,
+          baseUrl: modelConfig.visionBaseUrl,
+          apiKey: modelConfig.visionApiKey,
         }),
       });
       const analyzeData = await analyzeRes.json();
@@ -129,8 +136,8 @@ export function GenerationPipeline() {
           userIdea: userIdeaInput,
           model: modelConfig.textModel,
           provider: modelConfig.textProvider,
-          baseUrl: modelConfig.customBaseUrl,
-          apiKey: modelConfig.customApiKey,
+          baseUrl: modelConfig.textBaseUrl,
+          apiKey: modelConfig.textApiKey,
         }),
       });
       const storyData = await storyRes.json();
@@ -153,9 +160,10 @@ export function GenerationPipeline() {
           sessionId,
           panelCount: 4,
           imageModel: modelConfig.imageModel,
+          textModel: modelConfig.textModel,
           provider: modelConfig.imageProvider,
-          baseUrl: modelConfig.customBaseUrl,
-          apiKey: modelConfig.customApiKey,
+          baseUrl: modelConfig.imageBaseUrl,
+          apiKey: modelConfig.imageApiKey,
         }),
       });
       const comicsData = await comicsRes.json();
@@ -180,8 +188,8 @@ export function GenerationPipeline() {
               sessionId,
               videoModel: modelConfig.videoModel,
               provider: modelConfig.videoProvider,
-              baseUrl: modelConfig.customBaseUrl,
-              apiKey: modelConfig.customApiKey,
+              baseUrl: modelConfig.videoBaseUrl,
+              apiKey: modelConfig.videoApiKey,
             }),
           });
           const videoData = await videoRes.json();
@@ -219,8 +227,14 @@ export function GenerationPipeline() {
           textProvider={modelConfig.textProvider}
           imageProvider={modelConfig.imageProvider}
           videoProvider={modelConfig.videoProvider}
-          customApiKey={modelConfig.customApiKey}
-          customBaseUrl={modelConfig.customBaseUrl}
+          visionBaseUrl={modelConfig.visionBaseUrl}
+          visionApiKey={modelConfig.visionApiKey}
+          textBaseUrl={modelConfig.textBaseUrl}
+          textApiKey={modelConfig.textApiKey}
+          imageBaseUrl={modelConfig.imageBaseUrl}
+          imageApiKey={modelConfig.imageApiKey}
+          videoBaseUrl={modelConfig.videoBaseUrl}
+          videoApiKey={modelConfig.videoApiKey}
           onChange={(changes) => setModelConfig(prev => ({ ...prev, ...changes }))}
           onClose={() => {}}
         />

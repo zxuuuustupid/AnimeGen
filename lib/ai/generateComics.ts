@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { getClient, AIConfig } from './client';
 
 export async function generateComics(
@@ -5,10 +6,13 @@ export async function generateComics(
   sessionId: string,
   panelCount: number = 4,
   imageModel: string = 'cogview-3-flash',
+  textModel: string = 'glm-4-flash',
   config?: AIConfig
 ): Promise<string[]> {
   const fs = require('fs');
   const path = require('path');
+
+  console.log('[generateComics] Initial config:', { imageModel, textModel, provider: config?.provider, baseUrl: config?.baseUrl ? '(set)' : '(empty)' });
 
   const client = getClient(config || { provider: 'zhipu' });
 
@@ -29,9 +33,11 @@ export async function generateComics(
   // Generate each panel
   for (let i = 0; i < panelCount; i++) {
     try {
+      console.log(`[generateComics] Generating panel ${i + 1}/${panelCount}`);
+
       // Generate description for this panel using text model
       const data = {
-        model: config?.provider === 'zhipu' ? 'glm-4-flash' : 'gpt-4o-mini',
+        model: textModel,
         messages: [
           {
             role: 'user',
@@ -40,7 +46,9 @@ export async function generateComics(
         ],
       };
 
+      console.log(`[generateComics] Calling chat completions for panel ${i + 1}`);
       const response = await client.post('/chat/completions', data);
+      console.log(`[generateComics] Chat response for panel ${i + 1}:`, JSON.stringify(response.data).substring(0, 500));
 
       const panelDescription = response.data.choices?.[0]?.message?.content || '';
 
@@ -55,7 +63,9 @@ export async function generateComics(
         prompt: `${panelDescription}，漫画风格，高质量，连环漫画`,
       };
 
+      console.log(`[generateComics] Calling image generation for panel ${i + 1}`);
       const imageResponse = await client.post('/images/generations', imageData);
+      console.log(`[generateComics] Image response for panel ${i + 1}:`, JSON.stringify(imageResponse.data).substring(0, 500));
 
       // Handle different response formats - could be URL or base64
       let imageDataResult: string | null = null;
@@ -76,8 +86,13 @@ export async function generateComics(
           const base64Data = imageDataResult.split(',')[1];
           imageBuffer = Buffer.from(base64Data, 'base64');
         } else {
-          // It's a URL, download it
-          const imageResponseData = await client.get(imageDataResult, {
+          // It's a URL - download without auth headers (external URLs like UCloud don't need them)
+          const urlObj = new URL(imageDataResult);
+          const downloadClient = axios.create({
+            baseURL: `${urlObj.protocol}//${urlObj.host}`,
+            timeout: 30000,
+          });
+          const imageResponseData = await downloadClient.get(imageDataResult, {
             responseType: 'arraybuffer',
           });
           imageBuffer = Buffer.from(imageResponseData.data);
@@ -86,7 +101,10 @@ export async function generateComics(
         const panelPath = `/generated/${sessionId}/comics/panel_${i + 1}.jpg`;
         const fullPanelPath = path.join(process.cwd(), 'public', panelPath);
         fs.writeFileSync(fullPanelPath, imageBuffer);
+        console.log(`[generateComics] Saved panel ${i + 1} to:`, fullPanelPath);
         panels.push(panelPath);
+      } else {
+        console.warn(`[generateComics] No image data for panel ${i + 1}`);
       }
     } catch (error) {
       console.error(`Error generating panel ${i + 1}:`, error);
@@ -94,5 +112,6 @@ export async function generateComics(
     }
   }
 
+  console.log(`[generateComics] Finished with ${panels.length} panels`);
   return panels;
 }
