@@ -1,6 +1,19 @@
-# AnimeGen
+<div align="center">
+  <img src="assets/logo.jpeg" alt="AnimeGen" width="320" />
+  <p><strong>Update img · Describe idea · AI Generate story, comic and video</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js" />
+    <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT" />
+  </p>
+</div>
 
-Upload an image, describe your idea, and AI generates a short story, 4-panel comic, and optional video.
+<div align="center">
+  <img src="assets/screenshot.png" alt="AnimeGen Screenshot" width="800" />
+</div>
+
+---
 
 ## Features
 
