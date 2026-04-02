@@ -1,8 +1,14 @@
-import { zhipuClient, getZhipuHeaders, AnalyzeImageResponse } from './client';
+import { getClient, AIConfig } from './client';
 
-export async function analyzeImage(imagePath: string): Promise<string> {
+export async function analyzeImage(
+  imagePath: string,
+  model: string = 'glm-4v-flash',
+  config?: AIConfig
+): Promise<string> {
   const fs = require('fs');
   const path = require('path');
+
+  const client = getClient(config || { provider: 'zhipu' });
 
   // Read the image file and convert to base64
   const fullPath = path.join(process.cwd(), 'public', imagePath);
@@ -12,7 +18,7 @@ export async function analyzeImage(imagePath: string): Promise<string> {
   const mimeType = imageExt === 'jpg' ? 'jpeg' : imageExt;
 
   const data = {
-    model: 'glm-4v-flash',
+    model,
     messages: [
       {
         role: 'user',
@@ -32,9 +38,7 @@ export async function analyzeImage(imagePath: string): Promise<string> {
     ],
   };
 
-  const response = await zhipuClient.post('/chat/completions', data, {
-    headers: getZhipuHeaders(),
-  });
+  const response = await client.post('/chat/completions', data);
 
   const analysis = response.data.choices?.[0]?.message?.content || '';
   return analysis;

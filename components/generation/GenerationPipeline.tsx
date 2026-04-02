@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGeneration } from '@/lib/store/GenerationContext';
 import { generateSessionId } from '@/lib/utils/session';
@@ -41,12 +41,14 @@ export function GenerationPipeline() {
 
   const [userIdeaInput, setUserIdeaInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const sessionIdRef = useRef<string | null>(null);
 
-  const sessionId = state.sessionId || generateSessionId();
-
-  if (!state.sessionId) {
-    setSessionId(sessionId);
+  // Initialize session ID only once
+  if (!sessionIdRef.current) {
+    sessionIdRef.current = state.sessionId || generateSessionId();
   }
+
+  const sessionId = sessionIdRef.current;
 
   const getCurrentStepStatus = (stepNum: number): StepStatus => {
     if (stepNum < state.currentStep) return 'completed';
@@ -131,25 +133,28 @@ export function GenerationPipeline() {
 
       setComicPanels(comicsData.panels);
 
-      // Step 4: Generate video
+      // Step 4: Generate video (optional - skip if API not available)
       setStatus('generating_video');
       setProgress('正在生成视频...');
 
-      const videoRes = await fetch('/api/video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          comicPanels: comicsData.panels,
-          sessionId,
-        }),
-      });
-      const videoData = await videoRes.json();
+      try {
+        const videoRes = await fetch('/api/video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            comicPanels: comicsData.panels,
+            sessionId,
+          }),
+        });
+        const videoData = await videoRes.json();
 
-      if (!videoData.success) {
-        throw new Error(videoData.error || '视频生成失败');
+        if (videoData.success && videoData.videoUrl) {
+          setVideoUrl(videoData.videoUrl);
+        }
+      } catch (videoError) {
+        // Video generation is optional - continue even if it fails
+        console.warn('Video generation skipped:', videoError);
       }
-
-      setVideoUrl(videoData.videoUrl);
 
       // Complete!
       setStatus('completed');

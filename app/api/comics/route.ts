@@ -3,7 +3,7 @@ import { generateComics } from '@/lib/ai/generateComics';
 
 export async function POST(request: NextRequest) {
   try {
-    const { story, sessionId, panelCount } = await request.json();
+    const { story, sessionId, panelCount, imageModel, provider, baseUrl, apiKey } = await request.json();
 
     if (!story || !sessionId) {
       return NextResponse.json(
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const panels = await generateComics(story, sessionId, panelCount || 4);
+    const panels = await generateComics(story, sessionId, panelCount || 4, imageModel || 'cogview-3-flash', {
+      provider,
+      baseUrl,
+      apiKey,
+    });
 
     return NextResponse.json({
       success: true,

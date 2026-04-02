@@ -3,7 +3,7 @@ import { generateStory } from '@/lib/ai/generateStory';
 
 export async function POST(request: NextRequest) {
   try {
-    const { imageAnalysis, userIdea } = await request.json();
+    const { imageAnalysis, userIdea, model, provider, baseUrl, apiKey } = await request.json();
 
     if (!imageAnalysis || !userIdea) {
       return NextResponse.json(
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const story = await generateStory(imageAnalysis, userIdea);
+    const story = await generateStory(imageAnalysis, userIdea, model || 'glm-4-flash', {
+      provider,
+      baseUrl,
+      apiKey,
+    });
 
     return NextResponse.json({
       success: true,

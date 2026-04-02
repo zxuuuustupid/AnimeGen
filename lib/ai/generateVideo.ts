@@ -5,7 +5,7 @@ import fs from 'fs';
 export async function generateVideo(
   comicPanels: string[],
   sessionId: string
-): Promise<string> {
+): Promise<string | null> {
   // Create output directory
   const outputDir = path.join(process.cwd(), 'public', 'generated', sessionId);
   if (!fs.existsSync(outputDir)) {
@@ -20,55 +20,134 @@ export async function generateVideo(
   const data = {
     model: 'cogvideox-flash',
     prompt: '动画风格，漫画图片动起来，平滑过渡',
-    image: `data:image/jpeg;base64,${base64Image}`,
+    image_url: `data:image/jpeg;base64,${base64Image}`,
+    quality: 'speed',
+    size: '1280x720',
+    fps: 30,
+    duration: 5,
   };
 
   try {
-    const response = await zhipuClient.post('/video/generations', data, {
+    // Correct endpoint: /videos/generations
+    const response = await zhipuClient.post('/videos/generations', data, {
       headers: getZhipuHeaders(),
     });
 
-    // Handle different response formats
-    // Format 1: Direct URL
-    if (response.data.data?.[0]?.url) {
-      const videoUrl = response.data.data[0].url;
-      const videoResponse = await zhipuClient.get(videoUrl, {
-        responseType: 'arraybuffer',
-      });
+    console.log('Video API response:', JSON.stringify(response.data).substring(0, 1000));
 
-      const videoPath = `/generated/${sessionId}/video.mp4`;
-      const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
-      fs.writeFileSync(fullVideoPath, Buffer.from(videoResponse.data));
-      return videoPath;
+    // Check if we got a task ID
+    const taskId = response.data.id || response.data.request_id;
+    if (!taskId) {
+      console.log('No task ID in response');
+      return null;
     }
 
-    // Format 2: Base64 video data
-    if (response.data.data?.[0]?.b64_video) {
-      const videoBuffer = Buffer.from(response.data.data[0].b64_video, 'base64');
-      const videoPath = `/generated/${sessionId}/video.mp4`;
-      const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
-      fs.writeFileSync(fullVideoPath, videoBuffer);
-      return videoPath;
-    }
-
-    // Format 3: Task ID for async processing (需要轮询)
-    if (response.data.task_id) {
-      // 简化处理：视频生成是异步的，这里返回提示信息
-      // 实际项目中需要轮询 task_id 获取结果
-      console.log('Video generation task ID:', response.data.task_id);
-      throw new Error('视频生成需要较长时间，请稍后再试');
-    }
-
-    throw new Error('Unexpected video API response format');
-  } catch (error: unknown) {
-    // 如果是智谱AI的video API尚未开放或配额用完，返回null让前端处理
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as { response?: { status?: number } };
-      if (axiosError.response?.status === 400 || axiosError.response?.status === 403) {
-        console.error('Video API not available or quota exceeded');
-        return '/generated/demo_video.mp4'; // 返回占位符
+    // If task is already SUCCESS, get the video
+    if (response.data.task_status === 'SUCCESS') {
+      console.log('Video generation succeeded immediately');
+      if (response.data.data?.[0]?.url) {
+        const videoUrl = response.data.data[0].url;
+        const videoResponse = await zhipuClient.get(videoUrl, {
+          responseType: 'arraybuffer',
+        });
+        const videoPath = `/generated/${sessionId}/video.mp4`;
+        const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
+        fs.writeFileSync(fullVideoPath, Buffer.from(videoResponse.data));
+        return videoPath;
+      }
+      if (response.data.data?.[0]?.b64_video) {
+        const videoBuffer = Buffer.from(response.data.data[0].b64_video, 'base64');
+        const videoPath = `/generated/${sessionId}/video.mp4`;
+        const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
+        fs.writeFileSync(fullVideoPath, videoBuffer);
+        return videoPath;
       }
     }
-    throw error;
+
+    // If task is PROCESSING, we need to poll
+    if (response.data.task_status === 'PROCESSING' || response.data.task_status === '排队中') {
+      console.log('Video generation is processing, task ID:', taskId, '- polling for result...');
+
+      // Poll for the result (max 60 seconds)
+      const maxAttempts = 30;
+      const pollInterval = 3000;
+
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+        try {
+          // Try to get task result using the task ID
+          // Common patterns for async APIs
+          const retrievalEndpoints = [
+            `/videos/${taskId}`,
+            `/video/${taskId}`,
+            `/videos/result/${taskId}`,
+            `/video/result/${taskId}`,
+            `/videos/status/${taskId}`,
+            `/video/status/${taskId}`,
+          ];
+
+          let statusResponse = null;
+          for (const endpoint of retrievalEndpoints) {
+            try {
+              console.log(`Trying retrieval endpoint: ${endpoint}`);
+              statusResponse = await zhipuClient.get(endpoint, {
+                headers: getZhipuHeaders(),
+                timeout: 10000,
+              });
+              console.log(`Success on ${endpoint}:`, JSON.stringify(statusResponse.data).substring(0, 500));
+              break;
+            } catch (e) {
+              // 404 means endpoint doesn't exist, try next
+              console.log(`Failed on ${endpoint}:`, e instanceof Error ? e.message : String(e));
+            }
+          }
+
+          if (statusResponse?.data?.task_status === 'SUCCESS') {
+            if (statusResponse.data.data?.[0]?.url) {
+              const videoUrl = statusResponse.data.data[0].url;
+              const videoResponse = await zhipuClient.get(videoUrl, {
+                responseType: 'arraybuffer',
+              });
+              const videoPath = `/generated/${sessionId}/video.mp4`;
+              const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
+              fs.writeFileSync(fullVideoPath, Buffer.from(videoResponse.data));
+              console.log('Video saved to:', videoPath);
+              return videoPath;
+            }
+            if (statusResponse.data.data?.[0]?.b64_video) {
+              const videoBuffer = Buffer.from(statusResponse.data.data[0].b64_video, 'base64');
+              const videoPath = `/generated/${sessionId}/video.mp4`;
+              const fullVideoPath = path.join(process.cwd(), 'public', videoPath);
+              fs.writeFileSync(fullVideoPath, videoBuffer);
+              console.log('Video saved to:', videoPath);
+              return videoPath;
+            }
+          }
+
+          if (statusResponse?.data?.task_status === 'FAIL') {
+            console.log('Video generation failed');
+            return null;
+          }
+
+          console.log(`Poll ${i + 1}: status = ${statusResponse?.data?.task_status || 'unknown'}`);
+        } catch (pollError) {
+          console.log(`Poll ${i + 1} error:`, pollError instanceof Error ? pollError.message : String(pollError));
+        }
+      }
+
+      console.log('Video generation timed out after polling');
+      return null;
+    }
+
+    return null;
+  } catch (error: unknown) {
+    console.error('Video generation error:', error);
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: unknown; status?: number } };
+      console.error('Status:', axiosError.response?.status);
+      console.error('Data:', JSON.stringify(axiosError.response?.data));
+    }
+    return null;
   }
 }

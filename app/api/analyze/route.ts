@@ -3,7 +3,7 @@ import { analyzeImage } from '@/lib/ai/analyze';
 
 export async function POST(request: NextRequest) {
   try {
-    const { imagePath } = await request.json();
+    const { imagePath, model, provider, baseUrl, apiKey } = await request.json();
 
     if (!imagePath) {
       return NextResponse.json(
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const analysis = await analyzeImage(imagePath);
+    const analysis = await analyzeImage(imagePath, model || 'glm-4v-flash', {
+      provider,
+      baseUrl,
+      apiKey,
+    });
 
     return NextResponse.json({
       success: true,

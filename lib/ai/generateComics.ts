@@ -1,12 +1,16 @@
-import { zhipuClient, getZhipuHeaders } from './client';
+import { getClient, AIConfig } from './client';
 
 export async function generateComics(
   story: string,
   sessionId: string,
-  panelCount: number = 4
+  panelCount: number = 4,
+  imageModel: string = 'cogview-3-flash',
+  config?: AIConfig
 ): Promise<string[]> {
   const fs = require('fs');
   const path = require('path');
+
+  const client = getClient(config || { provider: 'zhipu' });
 
   // Create output directory
   const outputDir = path.join(process.cwd(), 'public', 'generated', sessionId, 'comics');
@@ -25,9 +29,9 @@ export async function generateComics(
   // Generate each panel
   for (let i = 0; i < panelCount; i++) {
     try {
-      // Generate description for this panel
+      // Generate description for this panel using text model
       const data = {
-        model: 'glm-4-flash',
+        model: config?.provider === 'zhipu' ? 'glm-4-flash' : 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -36,9 +40,7 @@ export async function generateComics(
         ],
       };
 
-      const response = await zhipuClient.post('/chat/completions', data, {
-        headers: getZhipuHeaders(),
-      });
+      const response = await client.post('/chat/completions', data);
 
       const panelDescription = response.data.choices?.[0]?.message?.content || '';
 
@@ -47,15 +49,13 @@ export async function generateComics(
         continue;
       }
 
-      // Generate image using CogView
+      // Generate image using image model
       const imageData = {
-        model: 'cogview-3-flash',
+        model: imageModel,
         prompt: `${panelDescription}，漫画风格，高质量，连环漫画`,
       };
 
-      const imageResponse = await zhipuClient.post('/images/generations', imageData, {
-        headers: getZhipuHeaders(),
-      });
+      const imageResponse = await client.post('/images/generations', imageData);
 
       // Handle different response formats - could be URL or base64
       let imageDataResult: string | null = null;
@@ -77,7 +77,7 @@ export async function generateComics(
           imageBuffer = Buffer.from(base64Data, 'base64');
         } else {
           // It's a URL, download it
-          const imageResponseData = await zhipuClient.get(imageDataResult, {
+          const imageResponseData = await client.get(imageDataResult, {
             responseType: 'arraybuffer',
           });
           imageBuffer = Buffer.from(imageResponseData.data);

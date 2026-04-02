@@ -1,11 +1,15 @@
-import { zhipuClient, getZhipuHeaders } from './client';
+import { getClient, AIConfig } from './client';
 
 export async function generateStory(
   imageAnalysis: string,
-  userIdea: string
+  userIdea: string,
+  model: string = 'glm-4-flash',
+  config?: AIConfig
 ): Promise<string> {
+  const client = getClient(config || { provider: 'zhipu' });
+
   const data = {
-    model: 'glm-4-flash',
+    model,
     messages: [
       {
         role: 'user',
@@ -14,9 +18,7 @@ export async function generateStory(
     ],
   };
 
-  const response = await zhipuClient.post('/chat/completions', data, {
-    headers: getZhipuHeaders(),
-  });
+  const response = await client.post('/chat/completions', data);
 
   const story = response.data.choices?.[0]?.message?.content || '';
   return story;
