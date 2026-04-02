@@ -10,21 +10,12 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
   return (
     <div style={{ width: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            background: 'var(--sv-primary-container)',
-            fontSize: '14px',
-          }}
-        >
-          🎬
+        <div className="sv-section-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
         </div>
-        <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
           生成的视频
         </h2>
       </div>

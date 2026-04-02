@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateComics } from '@/lib/ai/generateComics';
+import { emitProgress } from '@/lib/sse/progressEmitter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    emitProgress(sessionId, { stage: 'comics_start', message: '正在生成漫画...', progress: 25, detail: '开始生成漫画分镜，请稍候' });
 
     const panels = await generateComics(story, sessionId, panelCount || 4, imageModel || 'cogview-3-flash', textModel || 'glm-4-flash', {
       provider,

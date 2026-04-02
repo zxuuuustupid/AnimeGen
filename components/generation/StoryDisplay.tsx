@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface StoryDisplayProps {
   story: string;
@@ -19,21 +21,13 @@ export function StoryDisplay({ story }: StoryDisplayProps) {
     <div style={{ width: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '28px',
-              height: '28px',
-              borderRadius: '8px',
-              background: 'var(--sv-primary-container)',
-              fontSize: '14px',
-            }}
-          >
-            📖
+          <div className="sv-section-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+            </svg>
           </div>
-          <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
             生成的故事
           </h2>
         </div>
@@ -47,29 +41,29 @@ export function StoryDisplay({ story }: StoryDisplayProps) {
             fontSize: '12px',
             fontWeight: 500,
             borderRadius: 'var(--sv-radius-full)',
-            border: '1px solid var(--sv-outline)',
-            background: copied ? 'var(--sv-success-container)' : 'var(--sv-surface)',
+            border: '1px solid var(--sv-outline-variant)',
+            background: copied ? 'var(--sv-success-container)' : 'transparent',
             color: copied ? 'var(--sv-success)' : 'var(--sv-on-surface-variant)',
             cursor: 'pointer',
             transition: 'all 0.2s',
           }}
           onMouseEnter={(e) => {
-            if (!copied) e.currentTarget.style.borderColor = 'var(--sv-primary)';
+            if (!copied) e.currentTarget.style.borderColor = 'var(--sv-outline)';
           }}
           onMouseLeave={(e) => {
-            if (!copied) e.currentTarget.style.borderColor = 'var(--sv-outline)';
+            if (!copied) e.currentTarget.style.borderColor = 'var(--sv-outline-variant)';
           }}
         >
           {copied ? (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               已复制
             </>
           ) : (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
               </svg>
@@ -82,16 +76,15 @@ export function StoryDisplay({ story }: StoryDisplayProps) {
         style={{
           padding: '24px',
           borderRadius: 'var(--sv-radius-lg)',
-          background: 'var(--sv-surface-dim)',
+          background: 'var(--sv-surface-container)',
           border: '1px solid var(--sv-outline-variant)',
-          whiteSpace: 'pre-wrap',
           lineHeight: 1.8,
-          fontSize: '15px',
+          fontSize: '14px',
           color: 'var(--sv-on-surface)',
           letterSpacing: '0.01em',
         }}
       >
-        {story}
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{story}</ReactMarkdown>
       </div>
     </div>
   );

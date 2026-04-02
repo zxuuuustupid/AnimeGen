@@ -8,13 +8,10 @@ export default function Home() {
       {/* Header */}
       <header
         className="sv-glass sticky top-0 z-40"
-        style={{
-          borderBottom: '1px solid var(--sv-outline-variant)',
-        }}
       >
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo Icon */}
+            {/* Logo Icon — KEEP AS IS */}
             <div
               className="flex items-center justify-center w-10 h-10 rounded-2xl"
               style={{
@@ -23,11 +20,11 @@ export default function Home() {
               }}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                {/* Anime sparkle mark */}
                 <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" opacity="0.95"/>
                 <path d="M12 6L13.2 10.8L18 12L13.2 13.2L12 18L10.8 13.2L6 12L10.8 10.8L12 6Z" fill="white"/>
               </svg>
             </div>
+            {/* Logo Text — KEEP AS IS */}
             <div>
               <h1
                 className="text-xl font-bold tracking-tight"
@@ -42,16 +39,16 @@ export default function Home() {
               </h1>
             </div>
           </div>
-          {/* Right side decorative chip */}
+          {/* Version badge — replaces "AI 就绪" */}
           <div
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
             style={{
-              background: 'var(--sv-primary-container)',
-              color: 'var(--sv-on-primary-container)',
+              background: 'var(--sv-surface-container)',
+              color: 'var(--sv-on-surface-variant)',
+              border: '1px solid var(--sv-outline-variant)',
             }}
           >
-            <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: 'var(--sv-success)' }} />
-            AI 就绪
+            v1.0
           </div>
         </div>
       </header>
@@ -61,21 +58,8 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-14 sv-animate-fade-in">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-6"
-              style={{
-                background: 'var(--sv-primary-container)',
-                color: 'var(--sv-on-primary-container)',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              AI 驱动的创意引擎
-            </div>
-
-            {/* Large AnimeGen Brand Title */}
-            <div className="flex items-center justify-center gap-4 mb-4">
+            {/* Large AnimeGen Brand Title — KEEP AS IS */}
+            <div className="flex items-center justify-center gap-4 mb-5">
               {/* Left sparkle */}
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ animation: 'sv-float 3s ease-in-out infinite', opacity: 0.6 }}>
                 <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#sparkleGrad1)"/>
@@ -111,11 +95,10 @@ export default function Home() {
               用图片讲述你的故事
             </h2>
             <p
-              className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
+              className="text-base sm:text-lg max-w-xl mx-auto leading-relaxed"
               style={{ color: 'var(--sv-on-surface-variant)' }}
             >
-              上传一张图片，描述你的想法，AI 将为你创作完整故事、
-              生成精美漫画，并制作一段短视频 MV。
+              上传图片，描述想法，即刻获得完整故事、精美漫画与短视频。
             </p>
           </div>
 
@@ -133,20 +116,12 @@ export default function Home() {
           style={{ borderTop: '1px solid var(--sv-outline-variant)' }}
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)' }}>
-              © 2026 AnimeGen · AI 创意工作室
+            <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)', opacity: 0.7 }}>
+              © 2026 AnimeGen
             </p>
             <div className="flex items-center gap-2 flex-wrap justify-center">
               {['GLM-4V', 'GLM-4', 'CogView-3', 'CogVideoX'].map((model) => (
-                <span
-                  key={model}
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
-                  style={{
-                    background: 'var(--sv-surface-container)',
-                    color: 'var(--sv-on-surface-variant)',
-                    border: '1px solid var(--sv-outline-variant)',
-                  }}
-                >
+                <span key={model} className="sv-model-tag">
                   {model}
                 </span>
               ))}

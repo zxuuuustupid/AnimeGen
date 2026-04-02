@@ -85,12 +85,12 @@ export function ImageUploader({
           borderRadius: 'var(--sv-radius-xl)',
           border: isDragging
             ? '2px solid var(--sv-primary)'
-            : '2px dashed var(--sv-outline)',
+            : '1.5px dashed var(--sv-outline)',
           padding: preview ? '12px' : '48px 24px',
           transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
           background: isDragging
             ? 'var(--sv-primary-light)'
-            : 'var(--sv-surface-dim)',
+            : 'var(--sv-surface-container)',
           cursor: 'pointer',
         }}
         onDragOver={handleDragOver}
@@ -123,44 +123,46 @@ export function ImageUploader({
                 alignItems: 'center',
                 justifyContent: 'center',
                 background: 'rgba(0,0,0,0.45)',
+                backdropFilter: 'blur(2px)',
+                WebkitBackdropFilter: 'blur(2px)',
                 opacity: 0,
-                transition: 'opacity 0.2s',
+                transition: 'opacity 0.25s',
                 borderRadius: 'var(--sv-radius-lg)',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
             >
-              <span style={{ color: '#fff', fontWeight: 600, fontSize: '14px' }}>
+              <span style={{ color: '#fff', fontWeight: 600, fontSize: '14px', letterSpacing: '0.01em' }}>
                 点击更换图片
               </span>
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-            {/* Upload icon */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+            {/* Upload icon — SVG instead of emoji */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '64px',
-                height: '64px',
+                width: '56px',
+                height: '56px',
                 borderRadius: '50%',
                 background: 'var(--sv-primary-container)',
                 animation: isDragging ? 'sv-float 1.5s ease-in-out infinite' : 'none',
               }}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--sv-on-primary-container)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--sv-on-primary-container)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--sv-on-surface)', marginBottom: '4px' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--sv-on-surface)', marginBottom: '4px' }}>
                 {isDragging ? '松开以上传图片' : '拖拽图片到这里，或点击选择'}
               </p>
-              <p style={{ fontSize: '13px', color: 'var(--sv-on-surface-variant)' }}>
+              <p style={{ fontSize: '12px', color: 'var(--sv-on-surface-variant)', opacity: 0.6 }}>
                 支持 JPG、PNG、WEBP，最大 10MB
               </p>
             </div>
@@ -186,12 +188,12 @@ export function ImageUploader({
       {isUploading && (
         <div
           style={{
-            marginTop: '16px',
+            marginTop: '14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-            fontSize: '14px',
+            fontSize: '13px',
             color: 'var(--sv-primary)',
             fontWeight: 500,
           }}
@@ -201,8 +203,8 @@ export function ImageUploader({
               <div
                 key={i}
                 style={{
-                  width: '6px',
-                  height: '6px',
+                  width: '5px',
+                  height: '5px',
                   borderRadius: '50%',
                   background: 'var(--sv-primary)',
                   animation: 'sv-dot-pulse 1.4s infinite ease-in-out both',

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getClient, AIConfig } from './client';
+import { emitProgress } from '@/lib/sse/progressEmitter';
 
 interface ComicScene {
   id: number;
@@ -53,7 +54,7 @@ export async function generateComics(
   // ========================================
   // Step 1: Extract 4 scenes from the story
   // ========================================
-  console.log('[generateComics] Step 1: Extracting scenes from story...');
+  emitProgress(sessionId, { stage: 'extract_scenes', message: '正在分析故事结构...', progress: 10, detail: '提取漫画分镜' });
 
   const sceneExtractionPrompt = `## 角色
 你是一位专业漫画分镜师，擅长将文字故事转化为视觉叙事。
@@ -183,7 +184,11 @@ ${story}
 
   // Save style reference
   fs.writeFileSync(styleRefPath, JSON.stringify(sceneResult.style_reference, null, 2));
-  console.log('[generateComics] Style reference saved');
+
+  // ========================================
+  // Step 2: Generate detailed panel descriptions
+  // ========================================
+  emitProgress(sessionId, { stage: 'generate_descriptions', message: '正在生成画面描述...', progress: 25, detail: '为每个分镜生成详细描述' });
 
   // ========================================
   // Step 2: Generate detailed panel descriptions
@@ -199,6 +204,13 @@ ${story}
     }
 
     console.log(`[generateComics] Generating panel ${i + 1}: ${scene.title}`);
+
+    emitProgress(sessionId, {
+      stage: 'generate_panel',
+      message: `正在生成第 ${i + 1} / ${panelCount} 张漫画...`,
+      progress: 25 + Math.round((i / panelCount) * 50),
+      detail: `【${scene.title}】${scene.description.substring(0, 30)}...`,
+    });
 
     const panelDescriptionPrompt = `## 角色
 你是一位资深漫画画师，精通各种漫画风格和表现技法。
@@ -293,6 +305,12 @@ ${scene.narration !== '无' ? `旁白文字：${scene.narration}` : ''}
     // ========================================
     // Step 3: Generate image from description
     // ========================================
+    emitProgress(sessionId, {
+      stage: 'generate_image',
+      message: `正在生成第 ${i + 1} 张漫画画面...`,
+      progress: 25 + Math.round(((i + 0.5) / panelCount) * 50),
+      detail: 'AI 正在绘制漫画，请稍候',
+    });
 
     // Format the final image prompt
     const imagePrompt = `${panelDescription}
@@ -337,6 +355,12 @@ ${scene.narration !== '无' ? `旁白文字：${scene.narration}` : ''}
         imageBuffer = Buffer.from(base64Data, 'base64');
       } else {
         // It's a URL - download without auth headers (external URLs like UCloud don't need them)
+        emitProgress(sessionId, {
+          stage: 'download_image',
+          message: `正在保存第 ${i + 1} 张漫画...`,
+          progress: 25 + Math.round(((i + 0.8) / panelCount) * 50),
+          detail: '下载并保存图片',
+        });
         const urlObj = new URL(imageDataResult);
         const downloadClient = axios.create({
           baseURL: `${urlObj.protocol}//${urlObj.host}`,
@@ -348,7 +372,21 @@ ${scene.narration !== '无' ? `旁白文字：${scene.narration}` : ''}
         imageBuffer = Buffer.from(imageResponseData.data);
       }
 
-      const panelPath = `/generated/${sessionId}/comics/panel_${i + 1}.jpg`;
+      // Validate image magic bytes
+      const pngMagic = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+      const jpegMagic = Buffer.from([0xff, 0xd8, 0xff]);
+      const isPng = pngMagic.every((b, i) => imageBuffer[i] === b);
+      const isJpeg = jpegMagic.every((b, i) => imageBuffer[i] === b);
+      const ext = isPng ? 'png' : isJpeg ? 'jpg' : null;
+
+      if (!ext) {
+        console.error(`[generateComics] Invalid image data for panel ${i + 1}, skipping. First bytes:`, imageBuffer.subarray(0, 20).toString('hex'));
+        continue;
+      }
+
+      console.log(`[generateComics] Panel ${i + 1} validated as ${ext.toUpperCase}, size: ${imageBuffer.length} bytes`);
+
+      const panelPath = `/generated/${sessionId}/comics/panel_${i + 1}.${ext}`;
       const fullPanelPath = path.join(process.cwd(), 'public', panelPath);
       fs.writeFileSync(fullPanelPath, imageBuffer);
       console.log(`[generateComics] Saved panel ${i + 1} to:`, fullPanelPath);
@@ -359,5 +397,11 @@ ${scene.narration !== '无' ? `旁白文字：${scene.narration}` : ''}
   }
 
   console.log(`[generateComics] Finished with ${panels.length} panels`);
+  emitProgress(sessionId, {
+    stage: 'done',
+    message: '漫画生成完成！',
+    progress: 100,
+    detail: `共生成 ${panels.length} 张漫画`,
+  });
   return panels;
 }

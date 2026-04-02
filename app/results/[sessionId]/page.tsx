@@ -25,10 +25,10 @@ export default function ResultsPage() {
       {/* Header */}
       <header
         className="sv-glass sticky top-0 z-40"
-        style={{ borderBottom: '1px solid var(--sv-outline-variant)' }}
       >
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {/* Logo Icon — KEEP AS IS */}
             <div
               className="flex items-center justify-center w-10 h-10 rounded-2xl"
               style={{
@@ -41,6 +41,7 @@ export default function ResultsPage() {
                 <path d="M12 6L13.2 10.8L18 12L13.2 13.2L12 18L10.8 13.2L6 12L10.8 10.8L12 6Z" fill="white"/>
               </svg>
             </div>
+            {/* Logo Text — KEEP AS IS */}
             <div>
               <h1
                 style={{
@@ -54,11 +55,11 @@ export default function ResultsPage() {
               >
                 AnimeGen
               </h1>
-              <p style={{ fontSize: '12px', color: 'var(--sv-on-surface-variant)' }}>创作成果</p>
+              <p style={{ fontSize: '12px', color: 'var(--sv-on-surface-variant)', opacity: 0.7 }}>创作成果</p>
             </div>
           </div>
           <Button variant="secondary" onClick={handleStartNew}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
               <path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8" />
               <path d="M21 3v5h-5" />
               <path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16" />
@@ -86,25 +87,25 @@ export default function ResultsPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '56px',
-                height: '56px',
+                width: '48px',
+                height: '48px',
                 borderRadius: '50%',
                 background: 'var(--sv-success-container)',
                 marginBottom: '16px',
               }}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--sv-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sv-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <h2
               className="sv-gradient-text"
-              style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}
+              style={{ fontSize: '26px', fontWeight: 700, marginBottom: '8px', letterSpacing: '-0.02em' }}
             >
-              创作完成！
+              创作完成
             </h2>
-            <p style={{ fontSize: '15px', color: 'var(--sv-on-surface-variant)' }}>
-              以下是 AI 为你生成的全部内容
+            <p style={{ fontSize: '14px', color: 'var(--sv-on-surface-variant)', opacity: 0.7 }}>
+              以下是为你生成的全部内容
             </p>
           </div>
 
@@ -113,21 +114,14 @@ export default function ResultsPage() {
             {state.uploadedImage && (
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '8px',
-                      background: 'var(--sv-primary-container)',
-                      fontSize: '14px',
-                    }}
-                  >
-                    🖼
+                  <div className="sv-section-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
                   </div>
-                  <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
                     原始图片
                   </h2>
                 </div>
@@ -176,7 +170,7 @@ export default function ResultsPage() {
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '16px' }}>
               <Button size="lg" onClick={handleStartNew}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
@@ -194,25 +188,12 @@ export default function ResultsPage() {
           style={{ borderTop: '1px solid var(--sv-outline-variant)' }}
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)' }}>
-              © 2026 AnimeGen · AI 创意工作室
+            <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)', opacity: 0.7 }}>
+              © 2026 AnimeGen
             </p>
             <div className="flex items-center gap-2 flex-wrap justify-center">
               {['GLM-4V', 'GLM-4', 'CogView-3', 'CogVideoX'].map((model) => (
-                <span
-                  key={model}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    background: 'var(--sv-surface-container)',
-                    color: 'var(--sv-on-surface-variant)',
-                    border: '1px solid var(--sv-outline-variant)',
-                  }}
-                >
+                <span key={model} className="sv-model-tag">
                   {model}
                 </span>
               ))}

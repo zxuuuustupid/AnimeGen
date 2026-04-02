@@ -55,7 +55,7 @@ export function ModelSelector({
     padding: '10px 14px',
     border: '1.5px solid var(--sv-outline)',
     borderRadius: 'var(--sv-radius-md)',
-    background: 'var(--sv-surface)',
+    background: 'rgba(255, 255, 255, 0.05)',
     color: 'var(--sv-on-surface)',
     fontSize: '13px',
     transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -100,7 +100,7 @@ export function ModelSelector({
               padding: '10px 14px',
               border: '1.5px solid var(--sv-outline)',
               borderRadius: 'var(--sv-radius-md)',
-              background: 'var(--sv-surface)',
+              background: 'rgba(255, 255, 255, 0.05)',
               color: 'var(--sv-on-surface)',
               fontSize: '13px',
               fontWeight: 500,
@@ -136,7 +136,9 @@ export function ModelSelector({
                 zIndex: 20,
                 marginTop: '4px',
                 width: '200px',
-                background: 'var(--sv-surface)',
+                background: 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(24px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
                 border: '1px solid var(--sv-outline-variant)',
                 borderRadius: 'var(--sv-radius-md)',
                 boxShadow: 'var(--sv-shadow-xl)',
@@ -338,10 +340,10 @@ export function GenerationConfigEditor({
   const [isOpen, setIsOpen] = useState(false);
 
   const sectionLabels = [
-    { icon: '👁', label: '图像分析模型 (Vision)', color: '#4285F4' },
-    { icon: '✍️', label: '文本生成模型 (Text)', color: '#0F9D58' },
-    { icon: '🎨', label: '图像生成模型 (Image)', color: '#F4B400' },
-    { icon: '🎬', label: '视频生成模型 (Video)', color: '#DB4437' },
+    { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>, label: '图像分析模型 (Vision)' },
+    { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>, label: '文本生成模型 (Text)' },
+    { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>, label: '图像生成模型 (Image)' },
+    { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>, label: '视频生成模型 (Video)' },
   ];
 
   const sections = [
@@ -410,6 +412,8 @@ export function GenerationConfigEditor({
           border: '1.5px solid var(--sv-outline)',
           borderRadius: 'var(--sv-radius-full)',
           background: 'var(--sv-surface)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           color: 'var(--sv-on-surface)',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
@@ -442,9 +446,9 @@ export function GenerationConfigEditor({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.25)',
+            backdropFilter: 'blur(3px)',
+            WebkitBackdropFilter: 'blur(3px)',
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
@@ -453,7 +457,9 @@ export function GenerationConfigEditor({
           <div
             className="sv-animate-scale-in"
             style={{
-              background: 'var(--sv-surface)',
+              background: 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
               borderRadius: 'var(--sv-radius-xl)',
               boxShadow: 'var(--sv-shadow-2xl)',
               width: '100%',
@@ -525,8 +531,9 @@ export function GenerationConfigEditor({
                     style={{
                       padding: '20px',
                       borderRadius: 'var(--sv-radius-lg)',
-                      background: 'var(--sv-surface-dim)',
-                      border: '1px solid var(--sv-outline-variant)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.4)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
@@ -539,7 +546,8 @@ export function GenerationConfigEditor({
                           height: '28px',
                           borderRadius: '8px',
                           fontSize: '14px',
-                          background: `${section.color}15`,
+                          background: 'var(--sv-primary-light)',
+                          color: 'var(--sv-primary)',
                         }}
                       >
                         {section.icon}

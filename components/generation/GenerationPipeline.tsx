@@ -12,6 +12,13 @@ import { Spinner } from '@/components/ui/Spinner';
 import { GenerationConfigEditor } from '@/components/ui/ModelSelector';
 import { Provider } from '@/lib/models';
 
+interface SSEProgress {
+  stage: string;
+  message: string;
+  progress?: number;
+  detail?: string;
+}
+
 type StepStatus = 'completed' | 'current' | 'pending';
 
 const STEPS: { step: number; label: string }[] = [
@@ -21,6 +28,23 @@ const STEPS: { step: number; label: string }[] = [
   { step: 4, label: '生成漫画' },
   { step: 5, label: '生成视频' },
 ];
+
+/* --- SVG Icon Components --- */
+const CameraIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+    <circle cx="12" cy="13" r="4" />
+  </svg>
+);
+
+const PenIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+    <path d="M2 2l7.586 7.586" />
+    <circle cx="11" cy="11" r="2" />
+  </svg>
+);
 
 export function GenerationPipeline() {
   const router = useRouter();
@@ -39,7 +63,9 @@ export function GenerationPipeline() {
 
   const [userIdeaInput, setUserIdeaInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [sseProgress, setSseProgress] = useState<SSEProgress | null>(null);
   const sessionIdRef = useRef<string | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   const [modelConfig, setModelConfig] = useState({
     visionModel: 'glm-4v-flash',
@@ -82,6 +108,32 @@ export function GenerationPipeline() {
     setImage(imageUrl);
   };
 
+  const connectSSE = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    const es = new EventSource(`/api/progress?sessionId=${sessionId}`);
+    es.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'connected') return;
+        setSseProgress(data);
+        if (data.message) setProgress(data.message);
+      } catch {}
+    };
+    es.onerror = () => {
+      es.close();
+    };
+    eventSourceRef.current = es;
+  };
+
+  const disconnectSSE = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+  };
+
   const handleStartGeneration = async () => {
     if (!state.uploadedImage || !userIdeaInput.trim()) {
       alert('请先上传图片并输入你的想法');
@@ -90,6 +142,8 @@ export function GenerationPipeline() {
 
     setUserIdea(userIdeaInput);
     setIsGenerating(true);
+    setSseProgress(null);
+    connectSSE();
 
     try {
       setStatus('analyzing');
@@ -104,6 +158,7 @@ export function GenerationPipeline() {
           provider: modelConfig.visionProvider,
           baseUrl: modelConfig.visionBaseUrl,
           apiKey: modelConfig.visionApiKey,
+          sessionId,
         }),
       });
       const analyzeData = await analyzeRes.json();
@@ -127,6 +182,7 @@ export function GenerationPipeline() {
           provider: modelConfig.textProvider,
           baseUrl: modelConfig.textBaseUrl,
           apiKey: modelConfig.textApiKey,
+          sessionId,
         }),
       });
       const storyData = await storyRes.json();
@@ -191,10 +247,12 @@ export function GenerationPipeline() {
 
       setStatus('completed');
       setProgress('完成！');
+      disconnectSSE();
       router.push(`/results/${sessionId}`);
     } catch (error) {
       console.error('Generation error:', error);
       setError(error instanceof Error ? error.message : '生成失败');
+      disconnectSSE();
     } finally {
       setIsGenerating(false);
     }
@@ -232,21 +290,10 @@ export function GenerationPipeline() {
         {/* Step 1: Upload Image */}
         <Card>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '28px',
-                height: '28px',
-                borderRadius: '8px',
-                background: 'var(--sv-primary-container)',
-                fontSize: '13px',
-              }}
-            >
-              📷
+            <div className="sv-section-icon">
+              <CameraIcon />
             </div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
               上传图片
             </h2>
           </div>
@@ -260,21 +307,10 @@ export function GenerationPipeline() {
         {/* Step 2: Enter Idea */}
         <Card>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '28px',
-                height: '28px',
-                borderRadius: '8px',
-                background: 'var(--sv-primary-container)',
-                fontSize: '13px',
-              }}
-            >
-              ✨
+            <div className="sv-section-icon">
+              <PenIcon />
             </div>
-            <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--sv-on-surface)' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)', letterSpacing: '-0.01em' }}>
               你的想法
             </h2>
           </div>
@@ -282,29 +318,8 @@ export function GenerationPipeline() {
             value={userIdeaInput}
             onChange={(e) => setUserIdeaInput(e.target.value)}
             placeholder="描述你想要的故事风格、情节走向、氛围感受..."
-            style={{
-              width: '100%',
-              height: '128px',
-              padding: '14px 16px',
-              borderRadius: 'var(--sv-radius-lg)',
-              border: '1.5px solid var(--sv-outline)',
-              background: 'var(--sv-surface-dim)',
-              color: 'var(--sv-on-surface)',
-              fontSize: '14px',
-              lineHeight: 1.6,
-              resize: 'none',
-              outline: 'none',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
-              fontFamily: 'inherit',
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = 'var(--sv-primary)';
-              e.target.style.boxShadow = '0 0 0 3px var(--sv-primary-light)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'var(--sv-outline)';
-              e.target.style.boxShadow = 'none';
-            }}
+            className="sv-input"
+            style={{ height: '128px' }}
           />
         </Card>
 
@@ -317,17 +332,35 @@ export function GenerationPipeline() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '32px 0',
-                gap: '20px',
+                padding: '28px 24px',
+                gap: '16px',
               }}
             >
               <Spinner size="lg" />
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--sv-on-surface)' }}>
+              <div style={{ textAlign: 'center', width: '100%', maxWidth: '400px' }}>
+                <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--sv-on-surface)', marginBottom: '4px' }}>
                   {state.progressMessage}
                 </p>
-                <p style={{ fontSize: '13px', color: 'var(--sv-on-surface-variant)', marginTop: '4px' }}>
-                  请耐心等待，AI 正在全力创作中
+                {sseProgress?.detail && (
+                  <p style={{ fontSize: '13px', color: 'var(--sv-on-surface-variant)', marginBottom: '12px', lineHeight: 1.5 }}>
+                    {sseProgress.detail}
+                  </p>
+                )}
+                {sseProgress?.progress != null && (
+                  <div style={{ width: '100%', height: '4px', borderRadius: '2px', background: 'var(--sv-surface-container-high)', overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${sseProgress.progress}%`,
+                        background: 'linear-gradient(90deg, var(--sv-gradient-start), var(--sv-gradient-mid))',
+                        borderRadius: '2px',
+                        transition: 'width 0.4s ease',
+                      }}
+                    />
+                  </div>
+                )}
+                <p style={{ fontSize: '12px', color: 'var(--sv-on-surface-variant)', marginTop: '10px', opacity: 0.6 }}>
+                  请耐心等待，正在全力创作中
                 </p>
               </div>
             </div>
@@ -349,16 +382,16 @@ export function GenerationPipeline() {
                 borderRadius: 'var(--sv-radius-full)',
                 background: 'var(--sv-surface-container)',
                 border: '1px solid var(--sv-outline-variant)',
-                transition: 'all 0.2s',
+                transition: 'all 0.25s',
               }}
             >
               {/* Toggle Switch */}
               <div
                 style={{
                   position: 'relative',
-                  width: '44px',
-                  height: '24px',
-                  borderRadius: '12px',
+                  width: '40px',
+                  height: '22px',
+                  borderRadius: '11px',
                   background: generateVideoEnabled
                     ? 'linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid))'
                     : 'var(--sv-surface-container-high)',
@@ -371,12 +404,12 @@ export function GenerationPipeline() {
                   style={{
                     position: 'absolute',
                     top: '2px',
-                    left: generateVideoEnabled ? '22px' : '2px',
-                    width: '20px',
-                    height: '20px',
+                    left: generateVideoEnabled ? '20px' : '2px',
+                    width: '18px',
+                    height: '18px',
                     borderRadius: '50%',
                     background: '#ffffff',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                     transition: 'left 0.3s cubic-bezier(0.2, 0, 0, 1)',
                   }}
                 />
@@ -388,8 +421,8 @@ export function GenerationPipeline() {
                 onChange={(e) => setGenerateVideoEnabled(e.target.checked)}
                 style={{ display: 'none' }}
               />
-              <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sv-on-surface)' }}>
-                生成视频 (可选，需要较长时间)
+              <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sv-on-surface-variant)' }}>
+                生成视频（可选，需要较长时间）
               </span>
             </label>
 
@@ -398,7 +431,7 @@ export function GenerationPipeline() {
               onClick={handleStartGeneration}
               disabled={!state.uploadedImage || !userIdeaInput.trim()}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
               </svg>
               开始创作
@@ -414,13 +447,13 @@ export function GenerationPipeline() {
               padding: '20px 24px',
               borderRadius: 'var(--sv-radius-xl)',
               background: 'var(--sv-error-container)',
-              border: '1px solid var(--sv-error)',
+              border: '1px solid rgba(220, 38, 38, 0.15)',
               display: 'flex',
               alignItems: 'flex-start',
               gap: '12px',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sv-error)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sv-error)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
               <line x1="9" y1="9" x2="15" y2="15" />
@@ -441,7 +474,7 @@ export function GenerationPipeline() {
                   background: 'transparent',
                   color: 'var(--sv-error)',
                   cursor: 'pointer',
-                  transition: 'background 0.15s',
+                  transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'var(--sv-error)';
