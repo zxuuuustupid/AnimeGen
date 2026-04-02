@@ -16,23 +16,29 @@ export default function Home() {
           <div className="flex items-center gap-3">
             {/* Logo Icon */}
             <div
-              className="flex items-center justify-center w-9 h-9 rounded-xl"
+              className="flex items-center justify-center w-10 h-10 rounded-2xl"
               style={{
-                background: 'linear-gradient(135deg, var(--sv-gradient-start), var(--sv-gradient-mid))',
+                background: 'linear-gradient(135deg, #6C5CE7, #a855f7, #ec4899)',
+                boxShadow: '0 2px 12px rgba(108, 92, 231, 0.35)',
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                {/* Anime sparkle mark */}
+                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" opacity="0.95"/>
+                <path d="M12 6L13.2 10.8L18 12L13.2 13.2L12 18L10.8 13.2L6 12L10.8 10.8L12 6Z" fill="white"/>
               </svg>
             </div>
             <div>
               <h1
-                className="text-lg font-semibold tracking-tight"
-                style={{ color: 'var(--sv-on-surface)' }}
+                className="text-xl font-bold tracking-tight"
+                style={{
+                  background: 'linear-gradient(135deg, #6C5CE7, #a855f7, #ec4899)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
               >
-                StoryVision
+                AnimeGen
               </h1>
             </div>
           </div>
@@ -97,7 +103,7 @@ export default function Home() {
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm" style={{ color: 'var(--sv-on-surface-variant)' }}>
-              © 2026 StoryVision · AI 创意工作室
+              © 2026 AnimeGen · AI 创意工作室
             </p>
             <div className="flex items-center gap-2 flex-wrap justify-center">
               {['GLM-4V', 'GLM-4', 'CogView-3', 'CogVideoX'].map((model) => (

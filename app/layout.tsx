@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'StoryVision — AI 创意故事生成器',
+  title: 'AnimeGen — AI 动漫创意生成器',
   description: '上传一张图片，描述你的想法，AI 为你创作故事、生成漫画、制作短视频。由智谱 AI 驱动。',
 };
 
