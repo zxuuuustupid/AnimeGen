@@ -1,86 +1,85 @@
 # AnimeGen
 
-AnimeGen is a Next.js app that turns a single image into an anime-style creative pipeline:
+Upload an image, describe your idea, and AI generates a short story, 4-panel comic, and optional video.
 
-- image analysis
-- short story generation
-- 4-panel comic generation
-- optional video generation
+## Features
 
-The default setup uses Zhipu AI, and the UI also supports OpenAI, Anthropic, or a custom OpenAI-compatible endpoint.
-
-## Stack
-
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS 4
+- **Image Analysis** — AI understands your photo's content, subjects, colors, and mood
+- **Story Generation** — Creates a 500-800 word narrative with beginning, development, climax, and resolution
+- **Comic Generation** — Breaks the story into 4 key scenes with style-consistent panel artwork
+- **Video Generation** (optional) — Animates the comic panels
 
 ## Quick Start
-
-### 1. Install dependencies
 
 ```bash
 bun install
 ```
 
-### 2. Create `.env.local`
+Create `.env.local`:
 
 ```env
 ZHIPU_API_KEY=your_zhipu_api_key
 ```
 
-Optional:
-
-```env
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-```
-
-### 3. Run the app
-
 ```bash
 bun run dev
 ```
 
-Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000)
 
-## First Successful Run
+## First Run Tips
 
-For the easiest first run:
-
-1. Add `ZHIPU_API_KEY`
-2. Start the dev server
-3. Upload a `.jpg`, `.png`, or `.webp` image under 10 MB
-4. Enter a short idea
-5. Keep the default models
-6. Leave video generation off for the first test
+1. Upload a `.jpg`, `.png`, or `.webp` image (under 10 MB)
+2. Enter a short creative direction (e.g. "A rainy urban coming-of-age story")
+3. Keep default models for the first test
+4. Leave video generation disabled initially — the core pipeline is image → story → comics
 
 ## Default Models
 
-- Vision: `glm-4v-flash`
-- Text: `glm-4-flash`
-- Image: `cogview-3-flash`
-- Video: `cogvideox-flash`
+| Task | Model |
+|------|-------|
+| Vision | `glm-4v-flash` |
+| Text | `glm-4-flash` |
+| Image | `cogview-3-flash` |
+| Video | `cogvideox-flash` |
 
-## Supported Providers
+## Multi-Provider Support
 
-- Zhipu AI
-- OpenAI
-- Anthropic
-- Custom provider
+Configure each task independently in the UI settings panel:
+
+- **Zhipu AI** — default provider
+- **OpenAI** — GPT-4o, DALL-E 3, etc.
+- **Anthropic** — Claude models
+- **Custom** — any OpenAI-compatible endpoint
+
+For custom endpoints, enter your own base URL, model name, and API key directly in the UI.
 
 ## Project Structure
 
-```text
-app/            Next.js pages and API routes
-components/     UI and generation flow
-lib/ai/         AI client and generation logic
-public/uploads/ Uploaded images
-public/generated/ Generated comics and videos
+```
+app/
+├── api/              # Server-side API routes
+│   ├── analyze/      # Vision model image analysis
+│   ├── story/       # Text model story generation
+│   ├── comics/      # Image model comic generation
+│   └── video/       # Video model (optional)
+├── page.tsx         # Main app page
+└── results/[sessionId]/  # Result display page
+
+components/
+├── generation/      # Pipeline UI components
+├── ui/              # Reusable UI components
+└── upload/          # Image upload component
+
+lib/ai/
+├── analyze.ts       # Image analysis logic
+├── client.ts        # AI provider client
+├── generateStory.ts # Story generation
+├── generateComics.ts# Comic generation
+└── generateVideo.ts # Video generation
 ```
 
-## Build
+## Build & Run
 
 ```bash
 bun run build
@@ -89,9 +88,17 @@ bun run start
 
 ## Troubleshooting
 
-- If generation fails immediately, check your API key and model/provider selection.
-- If upload fails, make sure the file is JPG, PNG, or WEBP and under 10 MB.
-- If `.env.local` changes do not apply, restart the dev server.
+**Generation fails immediately**
+→ Check your API key is valid and has quota available.
+
+**Upload fails**
+→ Ensure the file is JPG, PNG, or WEBP and under 10 MB.
+
+**Styles look broken**
+→ Run `bun run build` then `bun run start` (not just dev).
+
+**.env.local changes not applied**
+→ Restart the dev server.
 
 ## License
 
