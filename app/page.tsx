@@ -73,9 +73,40 @@ export default function Home() {
               </svg>
               AI 驱动的创意引擎
             </div>
+
+            {/* Large AnimeGen Brand Title */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              {/* Left sparkle */}
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ animation: 'sv-float 3s ease-in-out infinite', opacity: 0.6 }}>
+                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#sparkleGrad1)"/>
+                <defs><linearGradient id="sparkleGrad1" x1="2" y1="2" x2="22" y2="22"><stop stopColor="#6C5CE7"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
+              </svg>
+              <h1
+                className="text-6xl sm:text-7xl font-black tracking-tighter"
+                style={{
+                  background: 'linear-gradient(135deg, #6C5CE7 0%, #a855f7 40%, #ec4899 70%, #f97316 100%)',
+                  backgroundSize: '200% 200%',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  animation: 'sv-gradient-flow 5s ease-in-out infinite',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.04em',
+                  filter: 'drop-shadow(0 2px 12px rgba(108, 92, 231, 0.2))',
+                }}
+              >
+                AnimeGen
+              </h1>
+              {/* Right sparkle */}
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ animation: 'sv-float 3s ease-in-out infinite 0.5s', opacity: 0.6 }}>
+                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#sparkleGrad2)"/>
+                <defs><linearGradient id="sparkleGrad2" x1="2" y1="2" x2="22" y2="22"><stop stopColor="#a855f7"/><stop offset="1" stopColor="#f97316"/></linearGradient></defs>
+              </svg>
+            </div>
+
             <h2
-              className="text-4xl sm:text-5xl font-bold tracking-tight mb-5 sv-gradient-text"
-              style={{ lineHeight: 1.2 }}
+              className="text-3xl sm:text-4xl font-bold tracking-tight mb-5 sv-gradient-text"
+              style={{ lineHeight: 1.3 }}
             >
               用图片讲述你的故事
             </h2>
