@@ -3,7 +3,7 @@ import { generateVideo } from '@/lib/ai/generateVideo';
 
 export async function POST(request: NextRequest) {
   try {
-    const { comicPanels, sessionId } = await request.json();
+    const { comicPanels, sessionId, videoModel, provider, baseUrl, apiKey } = await request.json();
 
     if (!comicPanels || !sessionId) {
       return NextResponse.json(
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const videoUrl = await generateVideo(comicPanels, sessionId);
+    const videoUrl = await generateVideo(comicPanels, sessionId, videoModel || 'cogvideox-flash', {
+      provider,
+      baseUrl,
+      apiKey,
+    });
 
     return NextResponse.json({
       success: true,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ModelOption, Provider, PROVIDERS } from '@/lib/models';
+import { ModelOption, Provider, PROVIDERS, VISION_MODELS, TEXT_MODELS, IMAGE_MODELS, VIDEO_MODELS } from '@/lib/models';
 
 interface ModelSelectorProps {
   label: string;

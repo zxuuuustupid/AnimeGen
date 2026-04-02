@@ -1,11 +1,15 @@
-import { zhipuClient, getZhipuHeaders } from './client';
+import { getClient, AIConfig } from './client';
 import path from 'path';
 import fs from 'fs';
 
 export async function generateVideo(
   comicPanels: string[],
-  sessionId: string
+  sessionId: string,
+  videoModel: string = 'cogvideox-flash',
+  config?: AIConfig
 ): Promise<string | null> {
+  const client = getClient(config || { provider: 'zhipu' });
+
   // Create output directory
   const outputDir = path.join(process.cwd(), 'public', 'generated', sessionId);
   if (!fs.existsSync(outputDir)) {
@@ -18,7 +22,7 @@ export async function generateVideo(
   const base64Image = imageBuffer.toString('base64');
 
   const data = {
-    model: 'cogvideox-flash',
+    model: videoModel,
     prompt: '动画风格，漫画图片动起来，平滑过渡',
     image_url: `data:image/jpeg;base64,${base64Image}`,
     quality: 'speed',
@@ -29,9 +33,7 @@ export async function generateVideo(
 
   try {
     // Correct endpoint: /videos/generations
-    const response = await zhipuClient.post('/videos/generations', data, {
-      headers: getZhipuHeaders(),
-    });
+    const response = await client.post('/videos/generations', data);
 
     console.log('Video API response:', JSON.stringify(response.data).substring(0, 1000));
 
@@ -47,7 +49,7 @@ export async function generateVideo(
       console.log('Video generation succeeded immediately');
       if (response.data.data?.[0]?.url) {
         const videoUrl = response.data.data[0].url;
-        const videoResponse = await zhipuClient.get(videoUrl, {
+        const videoResponse = await client.get(videoUrl, {
           responseType: 'arraybuffer',
         });
         const videoPath = `/generated/${sessionId}/video.mp4`;
@@ -77,7 +79,6 @@ export async function generateVideo(
 
         try {
           // Try to get task result using the task ID
-          // Common patterns for async APIs
           const retrievalEndpoints = [
             `/videos/${taskId}`,
             `/video/${taskId}`,
@@ -91,8 +92,7 @@ export async function generateVideo(
           for (const endpoint of retrievalEndpoints) {
             try {
               console.log(`Trying retrieval endpoint: ${endpoint}`);
-              statusResponse = await zhipuClient.get(endpoint, {
-                headers: getZhipuHeaders(),
+              statusResponse = await client.get(endpoint, {
                 timeout: 10000,
               });
               console.log(`Success on ${endpoint}:`, JSON.stringify(statusResponse.data).substring(0, 500));
@@ -106,7 +106,7 @@ export async function generateVideo(
           if (statusResponse?.data?.task_status === 'SUCCESS') {
             if (statusResponse.data.data?.[0]?.url) {
               const videoUrl = statusResponse.data.data[0].url;
-              const videoResponse = await zhipuClient.get(videoUrl, {
+              const videoResponse = await client.get(videoUrl, {
                 responseType: 'arraybuffer',
               });
               const videoPath = `/generated/${sessionId}/video.mp4`;

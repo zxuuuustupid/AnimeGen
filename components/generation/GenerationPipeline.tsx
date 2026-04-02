@@ -12,6 +12,8 @@ import { VideoPlayer } from '@/components/generation/VideoPlayer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
+import { GenerationConfigEditor } from '@/components/ui/ModelSelector';
+import { Provider } from '@/lib/models';
 
 type StepStatus = 'completed' | 'current' | 'pending';
 
@@ -42,6 +44,21 @@ export function GenerationPipeline() {
   const [userIdeaInput, setUserIdeaInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const sessionIdRef = useRef<string | null>(null);
+
+  // Model configuration state
+  const [modelConfig, setModelConfig] = useState({
+    visionModel: 'glm-4v-flash',
+    visionProvider: 'zhipu' as Provider,
+    textModel: 'glm-4-flash',
+    textProvider: 'zhipu' as Provider,
+    imageModel: 'cogview-3-flash',
+    imageProvider: 'zhipu' as Provider,
+    videoModel: 'cogvideox-flash',
+    videoProvider: 'zhipu' as Provider,
+  });
+
+  // Video generation option
+  const [generateVideoEnabled, setGenerateVideoEnabled] = useState(false);
 
   // Initialize session ID only once
   if (!sessionIdRef.current) {
@@ -82,7 +99,11 @@ export function GenerationPipeline() {
       const analyzeRes = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imagePath: state.uploadedImage }),
+        body: JSON.stringify({
+          imagePath: state.uploadedImage,
+          model: modelConfig.visionModel,
+          provider: modelConfig.visionProvider,
+        }),
       });
       const analyzeData = await analyzeRes.json();
 
@@ -102,6 +123,8 @@ export function GenerationPipeline() {
         body: JSON.stringify({
           imageAnalysis: analyzeData.analysis,
           userIdea: userIdeaInput,
+          model: modelConfig.textModel,
+          provider: modelConfig.textProvider,
         }),
       });
       const storyData = await storyRes.json();
@@ -123,6 +146,8 @@ export function GenerationPipeline() {
           story: storyData.story,
           sessionId,
           panelCount: 4,
+          imageModel: modelConfig.imageModel,
+          provider: modelConfig.imageProvider,
         }),
       });
       const comicsData = await comicsRes.json();
@@ -133,27 +158,30 @@ export function GenerationPipeline() {
 
       setComicPanels(comicsData.panels);
 
-      // Step 4: Generate video (optional - skip if API not available)
-      setStatus('generating_video');
-      setProgress('正在生成视频...');
+      // Step 4: Generate video (only if enabled)
+      if (generateVideoEnabled) {
+        setStatus('generating_video');
+        setProgress('正在生成视频...');
 
-      try {
-        const videoRes = await fetch('/api/video', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            comicPanels: comicsData.panels,
-            sessionId,
-          }),
-        });
-        const videoData = await videoRes.json();
+        try {
+          const videoRes = await fetch('/api/video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              comicPanels: comicsData.panels,
+              sessionId,
+              videoModel: modelConfig.videoModel,
+              provider: modelConfig.videoProvider,
+            }),
+          });
+          const videoData = await videoRes.json();
 
-        if (videoData.success && videoData.videoUrl) {
-          setVideoUrl(videoData.videoUrl);
+          if (videoData.success && videoData.videoUrl) {
+            setVideoUrl(videoData.videoUrl);
+          }
+        } catch (videoError) {
+          console.warn('Video generation skipped:', videoError);
         }
-      } catch (videoError) {
-        // Video generation is optional - continue even if it fails
-        console.warn('Video generation skipped:', videoError);
       }
 
       // Complete!
@@ -170,6 +198,22 @@ export function GenerationPipeline() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      {/* Model Settings */}
+      <div className="flex justify-end mb-4">
+        <GenerationConfigEditor
+          visionModel={modelConfig.visionModel}
+          textModel={modelConfig.textModel}
+          imageModel={modelConfig.imageModel}
+          videoModel={modelConfig.videoModel}
+          visionProvider={modelConfig.visionProvider}
+          textProvider={modelConfig.textProvider}
+          imageProvider={modelConfig.imageProvider}
+          videoProvider={modelConfig.videoProvider}
+          onChange={(changes) => setModelConfig(prev => ({ ...prev, ...changes }))}
+          onClose={() => {}}
+        />
+      </div>
+
       <StepIndicator steps={stepsWithStatus} />
 
       <div className="mt-8 space-y-6">
