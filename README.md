@@ -1,5 +1,11 @@
+# AnimeGen: An AI-Powered Anime Story & Comic Generator
+
 <div align="center">
-  <img src="assets/logo.jpeg" alt="AnimeGen" width="320" />
+  <img src="assets/screenshot.png" alt="AnimeGen Screenshot" width="800" />
+</div>
+
+<div align="center">
+  <!-- <img src="assets/logo.jpeg" alt="AnimeGen" width="320" /> -->
   <br />
   <strong>Upload an image · Describe your idea · AI generates story, comics & video</strong>
   <br /><br />
@@ -10,22 +16,14 @@
   <a href="#license"><img src="https://img.shields.io/badge/License-MIT-green" alt="MIT" /></a>
 </div>
 
-<br />
-
-<div align="center">
-  <img src="assets/screenshot.png" alt="AnimeGen Screenshot" width="800" />
-</div>
-
-<br />
-
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔍 **Image Analysis** | AI analyzes your photo — content, subjects, colors, mood & dynamics |
+| Feature                 | Description                                                                      |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| 🔍 **Image Analysis**   | AI analyzes your photo — content, subjects, colors, mood & dynamics              |
 | 📖 **Story Generation** | Creates a 500–800 word narrative (beginning → development → climax → resolution) |
-| 🎨 **Comic Generation** | Splits the story into 4 key scenes with style-consistent anime panel artwork |
-| 🎬 **Video Generation** | *(optional)* Animates comic panels into a short video clip |
+| 🎨 **Comic Generation** | Splits the story into 4 key scenes with style-consistent anime panel artwork     |
+| 🎬 **Video Generation** | _(optional)_ Animates comic panels into a short video clip                       |
 
 ## 🔗 Pipeline
 
@@ -60,12 +58,12 @@ Then open **[http://localhost:3000](http://localhost:3000)** 🎉
 
 ## 🤖 Default Models
 
-| Task | Model | Provider |
-|------|-------|----------|
-| Vision | `glm-4v-flash` | Zhipu AI |
-| Text | `glm-4-flash` | Zhipu AI |
-| Image | `cogview-3-flash` | Zhipu AI |
-| Video | `cogvideox-flash` | Zhipu AI |
+| Task   | Model             | Provider |
+| ------ | ----------------- | -------- |
+| Vision | `glm-4v-flash`    | Zhipu AI |
+| Text   | `glm-4-flash`     | Zhipu AI |
+| Image  | `cogview-3-flash` | Zhipu AI |
+| Video  | `cogvideox-flash` | Zhipu AI |
 
 All models can be changed per-task in the **Settings** panel (⚙️ button).
 
@@ -73,12 +71,12 @@ All models can be changed per-task in the **Settings** panel (⚙️ button).
 
 Configure each generation step independently — mix and match providers:
 
-| Provider | Models | Auth |
-|----------|--------|------|
-| **Zhipu AI** *(default)* | GLM-4V, GLM-4, CogView-3, CogVideoX | `ZHIPU_API_KEY` |
-| **OpenAI** | GPT-4o, DALL-E 3, Sora | `OPENAI_API_KEY` |
-| **Anthropic** | Claude 3.5 Sonnet, Claude 3 Haiku | `ANTHROPIC_API_KEY` |
-| **Custom** | Any OpenAI-compatible endpoint | In-app config |
+| Provider                 | Models                              | Auth                |
+| ------------------------ | ----------------------------------- | ------------------- |
+| **Zhipu AI** _(default)_ | GLM-4V, GLM-4, CogView-3, CogVideoX | `ZHIPU_API_KEY`     |
+| **OpenAI**               | GPT-4o, DALL-E 3, Sora              | `OPENAI_API_KEY`    |
+| **Anthropic**            | Claude 3.5 Sonnet, Claude 3 Haiku   | `ANTHROPIC_API_KEY` |
+| **Custom**               | Any OpenAI-compatible endpoint      | In-app config       |
 
 > 💡 For custom endpoints, enter the base URL, model name, and API key directly in the UI settings.
 
@@ -123,12 +121,12 @@ bun run start
 
 ## ❓ Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Generation fails immediately | Verify API key is valid and has remaining quota |
-| Upload fails | Ensure file is JPG, PNG, or WEBP and under 10 MB |
-| Styles look broken | Run `bun run build` → `bun run start` instead of dev |
-| `.env.local` changes ignored | Restart the dev server |
+| Problem                      | Solution                                             |
+| ---------------------------- | ---------------------------------------------------- |
+| Generation fails immediately | Verify API key is valid and has remaining quota      |
+| Upload fails                 | Ensure file is JPG, PNG, or WEBP and under 10 MB     |
+| Styles look broken           | Run `bun run build` → `bun run start` instead of dev |
+| `.env.local` changes ignored | Restart the dev server                               |
 
 ## 📄 License
 
